@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Siembras</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <h1>Siembras</h1>
+    <table>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Fecha</th>
+            <th>Ubicación</th>
+        </tr>
+        {% for siembra in siembras %}
+        <tr>
+            <td>{{ siembra.producto }}</td>
+            <td>{{ siembra.cantidad }}</td>
+            <td>{{ siembra.fecha_siembra }}</td>
+            <td>{{ siembra.ubicacion }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{% url 'crear_siembra' %}">Nueva Siembra</a>
+</body>
+</html>

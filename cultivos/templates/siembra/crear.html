@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nueva Siembra</title>
+</head>
+<body>
+    <h1>Registrar Siembra</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Guardar</button>
+    </form>
+    <a href="{% url 'lista_siembras' %}">Volver</a>
+</body>
+</html>
