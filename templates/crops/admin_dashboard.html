@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Panel Administrador</h1>
+        <p>Total siembras: <strong>{{ total }}</strong></p>
+    <ul>
+    {% for a in alerts %}<li>⚠️ {{ a.message }}</li>{% endfor %}
+    </ul>
+<div style="display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 24px;">
+    <canvas id="pieProduct"></canvas>
+    <canvas id="pieCategory"></canvas>
+    <canvas id="pieMuni"></canvas>
+</div>
+<script>
+    const CP = {{ chart_product|safe }};
+    const CC = {{ chart_category|safe }};
+    const CM = {{ chart_muni|safe }};
+    const mkPie = (id, labels, data) => new Chart(document.getElementById(id), {
+        type: 'pie', data: { labels, datasets: [{ data }] }, options: { responsive:true }
+    });
+    mkPie('pieProduct', CP.labels, CP.values);
+    mkPie('pieCategory', CC.labels, CC.values);
+    mkPie('pieMuni', CM.labels, CM.values);
+</script>
+{% endblock %}

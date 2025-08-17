@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mis Siembras</title>
+</head>
+<body>
+    <h1>Listado de mis siembras</h1>
+    <table border="1">
+        <tr>
+            <th>Producto</th>
+            <th>Municipio</th>
+            <th>Fecha de siembra</th>
+            <th>Fecha de cosecha</th>
+            <th>Estado</th>
+        </tr>
+        {% for siembra in siembras %}
+        <tr>
+            <td>{{ siembra.product.name }}</td>
+            <td>{{ siembra.municipality.name }}</td>
+            <td>{{ siembra.sowing_date }}</td>
+            <td>{{ siembra.harvest_date }}</td>
+            <td>{{ siembra.status }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No tienes siembras registradas.</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="{% url 'registro_siembra' %}">Registrar nueva siembra</a>
+</body>
+</html>

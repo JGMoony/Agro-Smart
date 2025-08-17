@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Viabilidad de siembra</h1>
+<form method="post">{% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Calcular</button>
+</form>
+{% if result %}
+  <hr>
+  <h2>Resultado: {{ result.level|title }} (score {{ result.score }})</h2>
+  <h3>Motivos</h3>
+  <ul>{% for r in result.reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+  {% if result.alternatives %}
+    <h3>Alternativas sugeridas</h3>
+    <ol>{% for a in result.alternatives %}<li>{{ a }}</li>{% endfor %}</ol>
+  {% endif %}
+{% endif %}
+{% endblock %}

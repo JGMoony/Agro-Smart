@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Eliminar siembra</h1>
+<p>¿Confirmas eliminar {{ sowing.product.name }} ({{ sowing.quantity }})?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit">Sí, eliminar</button>
+  <a href="{% url 'dashboard' %}">Cancelar</a>
+</form>
+{% endblock %}
