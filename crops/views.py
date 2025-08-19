@@ -1,17 +1,21 @@
+from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Count
 from .models import Sowing, Product, Category, Municipality
 from .forms import SowingForm, ViabilityForm
-from .services import ClimateService, ViabilityEngine
+from .services import ClimateService, ViabilityEngine, ViabilityResult
+from .utils import calcular_viabilidad
+from weather.utils import get_weather
 
-# Helper para rol admin
 is_admin = user_passes_test(lambda u: u.is_authenticated and u.role == 'admin')
+
+def home(request):
+    return render(request, 'base.html')
 
 @login_required
 def dashboard(request):
-    # Panel del agricultor (sus siembras)
     sowings = Sowing.objects.filter(farmer=request.user).select_related('product__category','municipality')
     return render(request, 'crops/dashboard.html', {'sowings': sowings})
 
@@ -51,6 +55,16 @@ def sowing_delete(request, pk):
         return redirect('dashboard')
     return render(request, 'crops/sowing_confirm_delete.html', {'sowing': sowing})
 
+@login_required
+def sowing_view(request):
+    form = SowingForm(request.POST)
+    if form.is_valid():
+        municipio = form.cleaned_data['municipality']
+        if municipio.latitude and municipio.longitude:
+            clima = get_weather(municipio.latitude, municipio.longitude)
+            form.save()
+    return render(request, 'sowing_form.html', {'form': form, 'clima': clima})
+
 @is_admin
 def admin_dashboard(request):
     base = Sowing.objects.all()
@@ -83,18 +97,43 @@ def admin_dashboard(request):
 @login_required
 def viability(request):
     result = None
+    alternatives = []
+
     if request.method == 'POST':
         form = ViabilityForm(request.POST)
         if form.is_valid():
-            product = form.cleaned_data['product']
-            municipality = form.cleaned_data['municipality']
-            sowing_date = form.cleaned_data['sowing_date']
-            overrides = {
-                k: form.cleaned_data[k] for k in ['temperature_c','rainfall_mm','humidity_pct']
-                if form.cleaned_data.get(k) is not None
-            }
-            conditions = ClimateService.get_conditions(municipality, sowing_date, overrides or None)
-            result = ViabilityEngine.evaluate(product, municipality, sowing_date, conditions)
+            data = form.cleaned_data
+            product = data['product']
+            municipality = data['municipality']
+            sowing_date = data['sowing_date']
+
+            clima = ClimateService.get_conditions(municipality, sowing_date)
+            print("Clima API:", clima)
+
+            data['temperature_c'] = clima.get('temperature_c')
+            data['rainfall_mm'] = clima.get('rainfall_mm')
+            data['humidity_pct'] = clima.get('humidity_pct')
+
+            result = calcular_viabilidad(product, data)
+
+            if result['level'] in ['baja', 'media']:
+                all_products = Product.objects.all()
+                scored = []
+                for p in all_products:
+                    score_dict = calcular_viabilidad(p, data)
+                    scored.append((p, score_dict['score']))
+                scored.sort(key=lambda x: x[1], reverse=True)
+                
+                alternatives = [{
+                    'cultivo': p.name,
+                    'score': s
+                } for p, s in scored[:3] if s > 0]
+
     else:
         form = ViabilityForm()
-    return render(request, 'crops/viability.html', {'form': form, 'result': result})
+
+    return render(request, 'crops/viability.html', {
+        'form': form,
+        'result': result,
+        'alternatives': alternatives
+    })

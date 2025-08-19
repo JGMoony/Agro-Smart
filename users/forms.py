@@ -6,12 +6,25 @@ class SignUpForm(forms.ModelForm):
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'role', 'password']
-        
+        fields = ['username', 'email', 'first_name', 'last_name', 'password']
+
     def save(self, commit=True):
         user = super().save(commit=False)
-        pdw = self.cleaned_data['password']
-        user.set_password(pdw)
+        user.set_password(self.cleaned_data['password'])
+        user.role = 'farmer'
+        if commit:
+            user.save()
+        return user
+    
+class AdminUserCreationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'role']
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
         if commit:
             user.save()
         return user
