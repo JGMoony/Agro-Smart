@@ -3,6 +3,7 @@ from typing import Dict, List
 from .models import Sowing, Product, Municipality
 import requests
 from django.conf import settings
+from datetime import timedelta
 
 IDEAL = {
     'Fresa':            {'temp': (15, 24), 'rain': (50, 150), 'hum': (70, 90)},
@@ -174,3 +175,15 @@ def top3_cultivos(clima):
     resultados = [calcular_viabilidad(c, clima) for c in cultivos]
     resultados_sorted = sorted(resultados, key=lambda x: x['score'], reverse=True)
     return resultados_sorted[:3]
+
+def calcular_cosecha_costos(sowing):
+    cultivo = sowing.product
+    if cultivo.cycle_days:
+        sowing.estimated_harvest_date = sowing.sowing_date + timedelta(days=cultivo.cycle_days)
+        
+    if sowing.unit == 'ha' and cultivo.cost_per_hectare:
+        sowing.estimated_cost = cultivo.cost_per_hectare * sowing.quantity
+    elif sowing.unit == 'A' and cultivo.cost_per_fanegada:
+        sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quiantity
+        
+    return sowing

@@ -16,6 +16,13 @@ class Product(models.Model):
     max_rain = models.FloatField(null=True, blank=True)
     min_humidity = models.FloatField(null=True, blank=True)
     max_humidity = models.FloatField(null=True, blank=True)
+    min_altitude = models.IntegerField(null=True, blank=True)
+    max_altitude = models.IntegerField(null=True, blank=True)
+    
+    
+    cycle_days =models.IntergerField(null=True, blank=True, help_text="Días aproximados para cosecha")
+    cost_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    cost_per_fanegada = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     
     class Meta:
         unique_together = ('category', 'name')
@@ -43,15 +50,12 @@ class Sowing(models.Model):
     )
     UNIT_CHOICES = [
     ('ha', 'Hectáreas'),
-    ('ton', 'Toneladas'),
-    ('m2', 'Metros cuadrados'),
-    ('plantas', 'Número de plantas'),
+    ('A', 'Fanegada'),
 ]
 
     unit = models.CharField(
     max_length=20,
     choices=UNIT_CHOICES,
-    default='ha',
     help_text='Unidad de medida'
 )
     farmer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='sowings')
@@ -63,6 +67,8 @@ class Sowing(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ongoing')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    estimated_harvest_date = models.DateField(null=True, blank=True)
+    estimated_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     class Meta:
         indexes = [
             models.Index(fields=['sowing_date']),

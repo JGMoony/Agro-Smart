@@ -3,9 +3,10 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Count
+from datetime import date
 from .models import Sowing, Product, Category, Municipality
 from .forms import SowingForm, ViabilityForm
-from .services import ClimateService, ViabilityEngine, ViabilityResult
+from .services import ClimateService, ViabilityEngine, ViabilityResult, calcular_cosecha_costos
 from .utils import calcular_viabilidad
 from weather.utils import get_weather
 
@@ -26,11 +27,21 @@ def sowing_create(request):
         if form.is_valid():
             sowing = form.save(commit=False)
             sowing.farmer = request.user
+            
+            municipio = sowing.municipality
+            if municipio.latitude and municipio.longitude:
+                clima = get_weather(municipio.latitude, municipio.longitude)
+            else:
+                clima = None
+                
+            sowing = calcular_cosecha_costos(sowing)
             sowing.save()
+            
             messages.success(request, 'Siembra registrada correctamente')
             return redirect('dashboard')
     else:
         form = SowingForm()
+        
     return render(request, 'crops/sowing_form.html', {'form': form})
 
 @login_required
@@ -39,11 +50,15 @@ def sowing_edit(request, pk):
     if request.method == 'POST':
         form = SowingForm(request.POST, instance=sowing)
         if form.is_valid():
+            sowing = form.save(commit=False)
+            sowing = calcular_cosecha_costos(sowing)
+            sowing.save()
             form.save()
             messages.success(request, 'Siembra actualizada')
             return redirect('dashboard')
     else:
         form = SowingForm(instance=sowing)
+        
     return render(request, 'crops/sowing_form.html', {'form': form})
 
 @login_required
@@ -55,20 +70,11 @@ def sowing_delete(request, pk):
         return redirect('dashboard')
     return render(request, 'crops/sowing_confirm_delete.html', {'sowing': sowing})
 
-@login_required
-def sowing_view(request):
-    form = SowingForm(request.POST)
-    if form.is_valid():
-        municipio = form.cleaned_data['municipality']
-        if municipio.latitude and municipio.longitude:
-            clima = get_weather(municipio.latitude, municipio.longitude)
-            form.save()
-    return render(request, 'sowing_form.html', {'form': form, 'clima': clima})
-
 @is_admin
 def admin_dashboard(request):
     base = Sowing.objects.all()
     total = base.count() or 1
+    
     by_product = base.values('product__name').annotate(count=Count('id')).order_by('-count')
     by_category = base.values('product__category__name').annotate(count=Count('id')).order_by('-count')
     by_muni = base.values('municipality__name').annotate(count=Count('id')).order_by('-count')
@@ -124,10 +130,17 @@ def viability(request):
                     scored.append((p, score_dict['score']))
                 scored.sort(key=lambda x: x[1], reverse=True)
                 
-                alternatives = [{
-                    'cultivo': p.name,
-                    'score': s
-                } for p, s in scored[:3] if s > 0]
+                for p, s in scored[:3]:
+                    if s > 0:
+                        alternatives.append({
+                            'cultivo': p.name,
+                            'cycle': p.cycle_days,
+                            'temp': f"{p.min_temp} - {p.max_temp} °C",
+                            'alt': f"{p.min_altitude} - {p.max_altitude} m",
+                            'costo_hectarea': p.cost_per_hectare,
+                            'costo_fanegada': p.cost_per_fanegada,
+                            'score': s
+                        })
 
     else:
         form = ViabilityForm()

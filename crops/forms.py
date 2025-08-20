@@ -3,9 +3,8 @@ from .models import Sowing, Product, Municipality
 
 class SowingForm(forms.ModelForm):
     UNIDADES = [
-        ('m2', 'Metros cuadrados'),
         ('ha', 'Hectáreas'),
-        ('plantas', 'Número de plantas'),
+        ('A', 'Fanegadas')
     ]
 
     class Meta:
