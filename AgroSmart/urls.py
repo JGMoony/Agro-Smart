@@ -16,21 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from rest_framework.routers import DefaultRouter
-from usuarios.views import UserViewSet
-from cultivos.views import CategoryViewSet, ProductViewSet, MunicipalityViewSet, SowingViewSet
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-
-router = DefaultRouter()
-router.register(r'users', UserViewSet, basename='users')
-router.register(r'categories', CategoryViewSet, basename='categories')
-router.register(r'products', ProductViewSet, basename='products')
-router.register(r'municipalities', MunicipalityViewSet, basename='municipalities')
-router.register(r'sowings', SowingViewSet, basename='sowings')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),   
+    path('users/', include('users.urls')),
+    path('', include('crops.urls')),
+    path('accounts/', include('users.urls')),
+    path('', include('weather.urls')),
 ]

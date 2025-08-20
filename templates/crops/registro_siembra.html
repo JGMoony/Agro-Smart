@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Siembra</title>
+</head>
+<body>
+    <h1>Registrar nueva siembra</h1>
+    <form method="post">
+    {% csrf_token %}
+    
+    <p>
+        {{ form.product.label_tag }}<br>
+        {{ form.product }}
+    </p>
+    <p>
+        {{ form.quantity.label_tag }}<br>
+        {{ form.quantity }}
+    </p>
+    <p>
+        {{ form.unidad.label_tag }}<br>
+        {{ form.unidad }}
+    </p>
+    <p>
+        {{ form.sowing_date.label_tag }}<br>
+        {{ form.sowing_date }}
+    </p>
+    <p>
+        {{ form.municipality.label_tag }}<br>
+        {{ form.municipality }}
+    </p>
+
+    <button type="submit">Guardar siembra</button>
+</form>
+        <button type="submit">Guardar siembra</button>
+    </form>
+{% if mensaje_exito %}
+    <p style="color: green;">{{ mensaje_exito }}</p>
+{% endif %}
+    <a href="{% url 'listas' %}">Ver mis siembras</a>
+</body>
+</html>

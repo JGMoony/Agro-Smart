@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Mis siembras</h1>
+<table>
+<thead>
+<tr>
+    <th>Producto</th><th>Categoría</th><th>Cantidad</th><th>Fecha siembra</th><th>Municipio</th><th>Estado</th><th></th>
+</tr>
+</thead>
+<tbody>
+{% for s in sowings %}
+    <tr>
+    <td>{{ s.product.name }}</td>
+    <td>{{ s.product.category.name }}</td>
+    <td>{{ s.quantity }} {{ s.get_unit_display }}</td>
+    <td>{{ s.sowing_date }}</td>
+    <td>{{ s.municipality.name }}</td>
+    <td>{{ s.get_status_display }}</td>
+    <td>
+        <a href="{% url 'sowing_edit' s.id %}">Editar</a>
+        <form method="post" action="{% url 'sowing_delete' s.id %}" style="display:inline;">
+        {% csrf_token %}<button type="submit">Eliminar</button>
+        </form>
+    </td>
+    </tr>
+{% empty %}
+    <tr><td colspan="7">Sin siembras aún.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

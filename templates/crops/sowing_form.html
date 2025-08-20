@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Registrar/Editar siembra</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Guardar</button>
+</form>
+
+{% if clima %}
+  {% if clima.error %}
+    <div style="color: red; margin-top: 20px;">
+      ⚠️ Error al consultar clima: {{ clima.error }}
+    </div>
+  {% else %}
+    <div style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+      <h3>Clima actual en {{ form.cleaned_data.municipality }}:</h3>
+      <ul>
+        <li><strong>Temperatura:</strong> {{ clima.temperatura }} °C</li>
+        <li><strong>Condición:</strong> {{ clima.descripcion }}</li>
+        <li><strong>Humedad:</strong> {{ clima.humedad }}%</li>
+        <li><strong>Viento:</strong> {{ clima.viento }} m/s</li>
+      </ul>
+    </div>
+  {% endif %}
+{% endif %}
+
+<script>
+  navigator.geolocation.getCurrentPosition(function(position) {
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+    console.log("Ubicación automática:", lat, lon);
+  });
+</script>
+{% endblock %}
