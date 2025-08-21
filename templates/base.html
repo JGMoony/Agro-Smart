@@ -32,10 +32,6 @@
     {% endif %}
 </nav>
 
-{% if user.is_authenticated and user.role == 'admin' %}
-    <a href="{% url 'admin_create_user' %}">Registrar usuario</a>
-{% endif %}
-
 {% for msg in messages %}
     <p class="msg {{ msg.tags }}">{{ msg }}</p>
 {% endfor %}

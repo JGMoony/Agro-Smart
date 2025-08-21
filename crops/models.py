@@ -20,7 +20,7 @@ class Product(models.Model):
     max_altitude = models.IntegerField(null=True, blank=True)
     
     
-    cycle_days =models.IntergerField(null=True, blank=True, help_text="Días aproximados para cosecha")
+    cycle_days = models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
     cost_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     cost_per_fanegada = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     
@@ -49,8 +49,8 @@ class Sowing(models.Model):
         ('failed', 'Fallido'),
     )
     UNIT_CHOICES = [
-    ('ha', 'Hectáreas'),
-    ('A', 'Fanegada'),
+    ('hectarea', 'Hectárea'),
+    ('fanegada', 'Fanegada'),
 ]
 
     unit = models.CharField(
@@ -67,8 +67,12 @@ class Sowing(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ongoing')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    area = models.FloatField(default=1.0)
+    area_unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='hectarea')
     estimated_harvest_date = models.DateField(null=True, blank=True)
+    expected_harvest_date = models.DateField(null=True, blank=True)
     estimated_cost = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    
     class Meta:
         indexes = [
             models.Index(fields=['sowing_date']),

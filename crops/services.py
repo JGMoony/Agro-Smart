@@ -178,12 +178,23 @@ def top3_cultivos(clima):
 
 def calcular_cosecha_costos(sowing):
     cultivo = sowing.product
-    if cultivo.cycle_days:
+    estimated_harvest_date = None
+    estimated_cost = None
+    
+    if cultivo.cycle_days and sowing.sowing_date:
         sowing.estimated_harvest_date = sowing.sowing_date + timedelta(days=cultivo.cycle_days)
         
-    if sowing.unit == 'ha' and cultivo.cost_per_hectare:
+    if sowing.unit == 'hectarea' and cultivo.cost_per_hectare:
         sowing.estimated_cost = cultivo.cost_per_hectare * sowing.quantity
-    elif sowing.unit == 'A' and cultivo.cost_per_fanegada:
-        sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quiantity
+    elif sowing.unit == 'fanegada' and cultivo.cost_per_fanegada:
+        sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quantity
+    else:
+        sowing.estimated_cost = None
         
-    return sowing
+    sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
+    
+    return {
+        "sowing": sowing,
+        "estimated_harvest_date": sowing.estimated_harvest_date,
+        "estimated_cost": sowing.estimated_cost
+    }

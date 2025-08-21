@@ -2,12 +2,12 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Sum
 from datetime import date
 from .models import Sowing, Product, Category, Municipality
 from .forms import SowingForm, ViabilityForm
 from .services import ClimateService, ViabilityEngine, ViabilityResult, calcular_cosecha_costos
-from .utils import calcular_viabilidad
+from .utils import calcular_viabilidad, calcular_cosecha_costos
 from weather.utils import get_weather
 
 is_admin = user_passes_test(lambda u: u.is_authenticated and u.role == 'admin')
@@ -34,10 +34,21 @@ def sowing_create(request):
             else:
                 clima = None
                 
-            sowing = calcular_cosecha_costos(sowing)
             sowing.save()
+                
+            estimated_harvest_date, estimated_cost = calcular_cosecha_costos(sowing)
+            sowing.save()
+            sowing.estimated_harvest_date = estimated_harvest_date
+            sowing.estimated_cost = estimated_cost
+            sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
+            
+            if estimated_harvest_date:
+                messages.info(request, f"Fecha estimada de cosecha: {estimated_harvest_date}")
+            if estimated_cost:
+                messages.info(request, f"Costo estimado: ${estimated_cost:,.2f}")
             
             messages.success(request, 'Siembra registrada correctamente')
+            
             return redirect('dashboard')
     else:
         form = SowingForm()
@@ -51,10 +62,20 @@ def sowing_edit(request, pk):
         form = SowingForm(request.POST, instance=sowing)
         if form.is_valid():
             sowing = form.save(commit=False)
-            sowing = calcular_cosecha_costos(sowing)
+            
             sowing.save()
-            form.save()
-            messages.success(request, 'Siembra actualizada')
+            
+            estimated_harvest_date, estimated_cost = calcular_cosecha_costos(sowing)
+            sowing.estimated_harvest_date = estimated_harvest_date
+            sowing.estimated_cost = estimated_cost
+            sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
+            
+            if estimated_harvest_date:
+                messages.info(request, f"Nueva fecha estimada de cosecha: {estimated_harvest_date}")
+            if estimated_cost:
+                messages.info(request, f"Nuevo costo estimado: ${estimated_cost:,.2f}")
+            
+            messages.success(request, 'Siembra actualizada correctamente')
             return redirect('dashboard')
     else:
         form = SowingForm(instance=sowing)
@@ -120,25 +141,25 @@ def viability(request):
             data['rainfall_mm'] = clima.get('rainfall_mm')
             data['humidity_pct'] = clima.get('humidity_pct')
 
-            result = calcular_viabilidad(product, data)
+            result = calcular_viabilidad(product, data, sowing_date=sowing_date)
 
             if result['level'] in ['baja', 'media']:
                 all_products = Product.objects.all()
                 scored = []
                 for p in all_products:
-                    score_dict = calcular_viabilidad(p, data)
-                    scored.append((p, score_dict['score']))
+                    score_dict = calcular_viabilidad(p, data, sowing_date=sowing_date)
+                    scored.append((p, score_dict['score'], score_dict))
                 scored.sort(key=lambda x: x[1], reverse=True)
                 
-                for p, s in scored[:3]:
+                for p, s, score_dict in scored[:3]:
                     if s > 0:
                         alternatives.append({
                             'cultivo': p.name,
-                            'cycle': p.cycle_days,
-                            'temp': f"{p.min_temp} - {p.max_temp} °C",
-                            'alt': f"{p.min_altitude} - {p.max_altitude} m",
-                            'costo_hectarea': p.cost_per_hectare,
-                            'costo_fanegada': p.cost_per_fanegada,
+                            'cycle_days': score_dict['cycle_days'],
+                            'estimated_harvest_date': score_dict['estimated_harvest_date'],
+                            'altitude_range': f"{score_dict['min_altitude']} - {score_dict['max_altitude']} m",
+                            'cost_per_hectare': score_dict['cost_per_hectare'],
+                            'cost_per_fanegada': score_dict['cost_per_fanegada'],
                             'score': s
                         })
 
@@ -150,3 +171,21 @@ def viability(request):
         'result': result,
         'alternatives': alternatives
     })
+    
+@login_required
+def reports_view(request):
+    
+    sowings = Sowing.objects.filter(farmer=request.user)
+    
+    total_sowings = sowings.count()
+    by_product = sowings.values('product__name').annotate(count=Count('id')).order_by('-count')
+    by_municipality = sowings.values('municipality__name').annotate(count=Count('id')).order_by('-count')
+    total_cost = sowings.aggregate(total=Sum('estimated_cost'))['total'] or 0
+    
+    context = {
+        'total_sowings': total_sowings,
+        'by_product': by_product,
+        'total_cost': total_cost
+    }
+    
+    return render(request, 'crops/reports.html', context)

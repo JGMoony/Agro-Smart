@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Reportes de Siembras</h1>
+
+<p><strong>Total de siembras:</strong> {{ total_sowings }}</p>
+<p><strong>Costo total estimado:</strong> ${{ total_cost }}</p>
+
+<h2>Siembras por Producto</h2>
+<ul>
+    {% for p in by_product %}
+        <li>{{ p.product__name }}: {{ p.count }}</li>
+    {% empty %}
+        <li>No hay datos</li>
+    {% endfor %}
+</ul>
+
+<h2>Siembras por Municipio</h2>
+<ul>
+    {% for m in by_municipality %}
+        <li>{{ m.municipality__name }}: {{ m.count }}</li>
+    {% empty %}
+        <li>No hay datos</li>
+    {% endfor %}
+</ul>
+{% endblock %}

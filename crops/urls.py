@@ -11,4 +11,5 @@ urlpatterns = [
     path('viability/', viability, name='viability'),
     path('', views.home, name='home'),
     path('mis-siembras/', dashboard, name='my_sowings'),
+    path('reports/', views.reports_view, name='reports'),
 ]
