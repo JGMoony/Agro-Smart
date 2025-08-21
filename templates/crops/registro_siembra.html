@@ -4,40 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Registrar Siembra</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
 </head>
 <body>
-    <h1>Registrar nueva siembra</h1>
-    <form method="post">
-    {% csrf_token %}
-    
-    <p>
-        {{ form.product.label_tag }}<br>
-        {{ form.product }}
-    </p>
-    <p>
-        {{ form.quantity.label_tag }}<br>
-        {{ form.quantity }}
-    </p>
-    <p>
-        {{ form.unidad.label_tag }}<br>
-        {{ form.unidad }}
-    </p>
-    <p>
-        {{ form.sowing_date.label_tag }}<br>
-        {{ form.sowing_date }}
-    </p>
-    <p>
-        {{ form.municipality.label_tag }}<br>
-        {{ form.municipality }}
-    </p>
+    <div class="siembra-container">
+        <h1 class="siembra-title">Registrar nueva siembra</h1>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="siembra-form-group siembra-container-diferente">
+                {{ form.product.label_tag }}
+                {{ form.product }}
+            </div>
+            <div class="siembra-form-group siembra-container-diferente">
+                {{ form.quantity.label_tag }}
+                {{ form.quantity }}
+            </div>
+            <div class="siembra-form-group siembra-container-diferente">
+                {{ form.unidad.label_tag }}
+                {{ form.unidad }}
+            </div>
+            <div class="siembra-form-group siembra-container-diferente">
+                {{ form.sowing_date.label_tag }}
+                {{ form.sowing_date }}
+            </div>
+            <div class="siembra-form-group siembra-container-diferente">
+                {{ form.municipality.label_tag }}
+                {{ form.municipality }}
+            </div>
 
-    <button type="submit">Guardar siembra</button>
-</form>
-        <button type="submit">Guardar siembra</button>
-    </form>
-{% if mensaje_exito %}
-    <p style="color: green;">{{ mensaje_exito }}</p>
-{% endif %}
-    <a href="{% url 'listas' %}">Ver mis siembras</a>
+            <button type="submit" class="siembra-button">Guardar siembra</button>
+        </form>
+
+        {% if mensaje_exito %}
+            <p class="siembra-success">{{ mensaje_exito }}</p>
+        {% endif %}
+        <a href="{% url 'listas' %}" class="siembra-link">Ver mis siembras</a>
+    </div>
 </body>
 </html>
