@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmar siembra</title>
+    <link rel="stylesheet" href="{% static 'css/siembra-styles.css' %}">
+    <style>
+        .cultivo-card {
+            background-color: #e8f5e9;
+            border: 2px dashed #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .cultivo-card button {
+            margin-top: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cultivo-card button:hover {
+            background-color: #388E3C;
+        }
+        .confirmacion-msg {
+            color: #2e7d32;
+            font-weight: bold;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<main>
+    <div class="siembra-container">
+        <h2 class="siembra-title">Clima no viable para este cultivo</h2>
+
+        {% for r in viabilidad.reasons %}
+            <div class="siembra-container-diferente">🔍 {{ r }}</div>
+        {% endfor %}
+
+        <h3 style="color:#2e7d32; margin-top: 20px;">🌱 Cultivos alternativos recomendados</h3>
+        <div id="alternativas">
+            {% for alt in viabilidad.alternatives %}
+                <div class="cultivo-card">
+                    <strong>{{ alt.cultivo }}</strong><br>
+                    Ciclo: {{ alt.cycle|default:"N/D" }} días<br>
+                    Temperatura ideal: {{ alt.temp }}<br>
+                    Altitud: {{ alt.alt|default:"N/D" }}<br>
+                    Costo estimado/ha: ${{ alt.costo_hectarea|floatformat:2 }}
+                    <button type="button" onclick="seleccionarCultivo('{{ alt.value }}', '{{ alt.cultivo }}')">Usar este cultivo</button>
+                </div>
+            {% endfor %}
+        </div>
+
+        <form method="post" style="margin-top: 24px;">
+            {% csrf_token %}
+            <div class="siembra-form-group">
+                <label for="product">Cultivo</label>
+                {{ form.product }}
+            </div>
+            <div class="siembra-form-group">
+                <label for="quantity">Cantidad</label>
+                {{ form.quantity }}
+            </div>
+            <div class="siembra-form-group">
+                <label for="unit">Unidad</label>
+                {{ form.unit }}
+            </div>
+            <div class="siembra-form-group">
+                <label for="sowing_date">Fecha de siembra</label>
+                {{ form.sowing_date }}
+            </div>
+            <div class="siembra-form-group">
+                <label for="municipality">Municipio</label>
+                {{ form.municipality }}
+            </div>
+            <div class="siembra-form-group">
+                <label for="area">Área</label>
+                {{ form.area }}
+            </div>
+            <div class="siembra-form-group">
+                <label for="area_unit">Unidad de área</label>
+                {{ form.area_unit }}
+            </div>
+
+            <button type="submit" name="confirmar_siembra" class="siembra-button">Confirmar siembra</button>
+            <a href="{% url 'sowing_create' %}" class="siembra-link">Volver a registrar con otro cultivo</a>
+        </form>
+    </div>
+</main>
+
+<script>
+    function seleccionarCultivo(valorId, nombreCultivo) {
+        const select = document.querySelector('select[name="product"]');
+        if (select) {
+            select.value = valorId;
+
+            const mensaje = document.createElement('div');
+            mensaje.className = 'confirmacion-msg';
+            mensaje.textContent = `Cultivo seleccionado: ${nombreCultivo}`;
+            document.querySelector('.siembra-container').appendChild(mensaje);
+
+            setTimeout(() => mensaje.remove(), 4000);
+        }
+    }
+</script>
+</body>
+</html>

@@ -5,34 +5,6 @@ import requests
 from django.conf import settings
 from datetime import timedelta
 
-IDEAL = {
-    'Fresa':            {'temp': (15, 24), 'rain': (50, 150), 'hum': (70, 90)},
-    'Mora':             {'temp': (16, 25), 'rain': (60, 150), 'hum': (65, 85)},
-    'Tomate de árbol':  {'temp': (14, 24), 'rain': (40, 120), 'hum': (60, 80)},
-    'Uchuva':           {'temp': (12, 22), 'rain': (60, 180), 'hum': (65, 85)},
-    'Curuba':           {'temp': (12, 22), 'rain': (60, 180), 'hum': (65, 85)},
-    'Papa':             {'temp': (10, 20), 'rain': (60, 120), 'hum': (70, 90)},
-    'Zanahoria':        {'temp': (12, 20), 'rain': (50, 100), 'hum': (60, 80)},
-    'Cebolla':          {'temp': (12, 24), 'rain': (40, 100), 'hum': (60, 80)},
-    'Repollo':          {'temp': (12, 20), 'rain': (50, 120), 'hum': (65, 85)},
-    'Habichuela':       {'temp': (18, 28), 'rain': (60, 120), 'hum': (60, 80)},
-    'Lechuga':          {'temp': (12, 22), 'rain': (50, 120), 'hum': (65, 85)},
-    'Acelga':           {'temp': (12, 22), 'rain': (50, 120), 'hum': (60, 85)},
-    'Espinaca':         {'temp': (10, 20), 'rain': (50, 120), 'hum': (60, 85)},
-    'Remolacha':        {'temp': (12, 22), 'rain': (50, 120), 'hum': (60, 85)},
-    'Maíz':             {'temp': (18, 28), 'rain': (70, 150), 'hum': (60, 85)},
-    'Fríjol':           {'temp': (15, 25), 'rain': (50, 120), 'hum': (55, 80)},
-    'Lentejas':         {'temp': (15, 22), 'rain': (40, 100), 'hum': (50, 75)},
-    'Arveja':           {'temp': (10, 20), 'rain': (40, 100), 'hum': (55, 80)},
-}
-
-@dataclass
-class ViabilityResult:
-    level: str
-    score: float
-    reasons: List[str]
-    alternatives: List[str]
-
 class ClimateService:
     @staticmethod
     def get_conditions(municipality: Municipality, sowing_date) -> Dict:
@@ -50,74 +22,81 @@ class ClimateService:
             'rainfall_mm': data.get('rain', {}).get('1h', 0),
         }
 
+@dataclass
+class ViabilityResult:
+    level: str
+    score: float
+    reasons: List[str]
+    alternatives: List[Dict]  
+    
 class ViabilityEngine:
     @staticmethod
-    def _range_score(value, r):
-        if value is None or r is None:
+    def _range_score(value, r_min, r_max):
+        if value is None or r_min is None or r_max is None:
             return 0.0
-        
-        lo, hi = r
-        if value < lo:
-            return max(0, 1 - (lo - value) / max(1, (hi - lo)))
-        if value > hi:
-            return max(0, 1 - (value - hi) / max(1, (hi - lo)))
+        if value < r_min:
+            return max(0, 1 - (r_min - value) / max(1, (r_max - r_min)))
+        if value > r_max:
+            return max(0, 1 - (value - r_max) / max(1, (r_max - r_min)))
         return 1.0
 
     @classmethod
-    def evaluate(cls, product: Product, municipality: Municipality, sowing_date, conditions: Dict) -> ViabilityResult:
-        name = product.name
-        ideal = IDEAL.get(name)
-        reasons = []
-        if not ideal:
-            return ViabilityResult('media', 0.5, ['Cultivo sin parámetros definidos'], [])
+    def evaluate(cls, product: Product, conditions: Dict) -> ViabilityResult:
+        t = conditions.get('temperature_c')
+        r = conditions.get('rainfall_mm')
+        h = conditions.get('humidity_pct')
 
-        t = conditions['temperature_c']
-        r = conditions['rainfall_mm']
-        h = conditions['humidity_pct']
+        t_score = cls._range_score(t, product.min_temp, product.max_temp)
+        r_score = cls._range_score(r, product.min_rain, product.max_rain)
+        h_score = cls._range_score(h, product.min_humidity, product.max_humidity)
 
-        t_score = cls._range_score(t, ideal['temp'])
-        r_score = cls._range_score(r, ideal['rain'])
-        h_score = cls._range_score(h, ideal['hum'])
+        score = round((t_score + r_score + h_score) / 3, 2)
+        level = 'alta' if score >= 0.75 else 'media' if score >= 0.45 else 'baja'
 
-        score = (t_score + r_score + h_score)/3
-
-        if score >= 0.75:
-            level = 'alta'
-        elif score >= 0.45:
-            level = 'media'
-        else:
-            level = 'baja'
-
-        reasons = []
-        def _msg(v, r, label):
-            if v is None:
+        def _msg(v, lo, hi, label):
+            if v is None or lo is None or hi is None:
                 return f"{label} no disponible"
-            lo, hi = r
             if v < lo:
                 return f"{label} por debajo del ideal ({v} < {lo})"
             if v > hi:
                 return f"{label} por encima del ideal ({v} > {hi})"
-            return f"{label} dentro del ideal ({lo}-{hi})"
+            return f"{label} dentro del ideal ({lo}–{hi})"
 
-        reasons.extend([
-            _msg(t, ideal.get('temp'), 'Temperatura'),
-            _msg(r, ideal.get('rain'), 'Lluvia'),
-            _msg(h, ideal.get('hum'), 'Humedad'),
-        ])
-        alts = []
-        for p in Product.objects.exclude(id=product.id):
-            ideal_p = IDEAL.get(p.name)
-            if not ideal_p:
-                continue
-            s = (cls._range_score(t, ideal_p.get('temp')) +
-                cls._range_score(r, ideal_p.get('rain')) +
-                cls._range_score(h, ideal_p.get('hum'))) / 3
-            alts.append((p.name, s))
-        alts.sort(key=lambda x: x[1], reverse=True)
-        alternatives = [name for name, _ in alts[:3]]
+        reasons = [
+            _msg(t, product.min_temp, product.max_temp, 'Temperatura'),
+            _msg(r, product.min_rain, product.max_rain, 'Lluvia'),
+            _msg(h, product.min_humidity, product.max_humidity, 'Humedad'),
+        ]
 
-        return ViabilityResult(level, round(score,2), reasons, alternatives)    
-    
+        alternatives = cls.recommend(product, conditions)
+        return ViabilityResult(level, score, reasons, alternatives)
+
+    @classmethod
+    def recommend(cls, excluded_product: Product, conditions: Dict) -> List[Dict]:
+        t = conditions.get('temperature_c')
+        r = conditions.get('rainfall_mm')
+        h = conditions.get('humidity_pct')
+        candidates = []
+
+        for p in Product.objects.exclude(id=excluded_product.id):
+            score = (
+                cls._range_score(t, p.min_temp, p.max_temp) +
+                cls._range_score(r, p.min_rain, p.max_rain) +
+                cls._range_score(h, p.min_humidity, p.max_humidity)
+            ) / 3
+
+            candidates.append({
+                'cultivo': p.name,
+                'score': round(score, 2),
+                'cycle': p.cycle_days,
+                'temp': f"{p.min_temp}–{p.max_temp} °C" if p.min_temp and p.max_temp else "N/D",
+                'alt': f"{p.min_altitude}–{p.max_altitude} m" if p.min_altitude and p.max_altitude else "N/D",
+                'costo_hectarea': p.cost_per_hectare or 0,
+                'costo_fanegada': p.cost_per_fanegada or 0,
+            })
+
+        return sorted(candidates, key=lambda x: x['score'], reverse=True)[:3]
+        
 def calcular_viabilidad(cultivo, clima):
     score = 0
     motivos = []
@@ -170,23 +149,39 @@ def calcular_viabilidad(cultivo, clima):
         "reasons": motivos
     }
 
-def top3_cultivos(clima):
+def top3_cultivos(data):
     cultivos = Product.objects.all()
-    resultados = [calcular_viabilidad(c, clima) for c in cultivos]
-    resultados_sorted = sorted(resultados, key=lambda x: x['score'], reverse=True)
-    return resultados_sorted[:3]
+    resultados = []
 
-def calcular_cosecha_costos(sowing):
+    for p in cultivos:
+        result = ViabilityEngine.evaluate(p, data)
+        resultados.append({
+            "cultivo": p.name,
+            "score": result.score * 100,
+            "level": result.level,
+            "reasons": result.reasons,
+            "cycle": p.cycle_days,
+            "temp": f"{p.min_temp}–{p.max_temp} °C" if p.min_temp and p.max_temp else "N/D",
+            "alt": f"{p.min_altitude}–{p.max_altitude} m" if p.min_altitude and p.max_altitude else "N/D",
+            "costo_hectarea": p.cost_per_hectare or 0,
+            "value": p.id
+        })
+
+    return sorted(resultados, key=lambda x: x['score'], reverse=True)[:3]
+
+def calcular_cosecha_costos(sowing: Sowing):
     cultivo = sowing.product
-    estimated_harvest_date = None
-    estimated_cost = None
-    
-    if cultivo.cycle_days and sowing.sowing_date:
-        sowing.estimated_harvest_date = sowing.sowing_date + timedelta(days=cultivo.cycle_days)
-        
-    if sowing.unit == 'hectarea' and cultivo.cost_per_hectare:
-        sowing.estimated_cost = cultivo.cost_per_hectare * sowing.quantity
-    elif sowing.unit == 'A' and cultivo.cost_per_fanegada:
-        sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quantity
-        
-    return sowing
+    fecha = sowing.sowing_date
+    unidad = sowing.unit
+    cantidad = sowing.quantity
+
+    fecha_cosecha = fecha + timedelta(days=cultivo.cycle_days) if cultivo.cycle_days else None
+
+    if unidad == 'hectarea' and cultivo.cost_per_hectare:
+        costo = cultivo.cost_per_hectare * cantidad
+    elif unidad == 'fanegada' and cultivo.cost_per_fanegada:
+        costo = cultivo.cost_per_fanegada * cantidad
+    else:
+        costo = None
+
+    return fecha_cosecha, costo

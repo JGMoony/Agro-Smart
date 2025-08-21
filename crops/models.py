@@ -1,13 +1,15 @@
 from django.db import models
 from django.conf import settings
 
+from crops import forms
+
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     def __str__(self):
         return self.name
 
 class Product(models.Model):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=False)
     name = models.CharField(max_length=100)
     
     min_temp = models.FloatField(null=True, blank=True)
@@ -19,7 +21,6 @@ class Product(models.Model):
     min_altitude = models.IntegerField(null=True, blank=True)
     max_altitude = models.IntegerField(null=True, blank=True)
     
-    
     cycle_days = models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
     cost_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     cost_per_fanegada = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
@@ -27,7 +28,12 @@ class Product(models.Model):
     class Meta:
         unique_together = ('category', 'name')
         ordering = ['category__name', 'name']
-        
+
+    class ViabilityForm(forms.Form):
+        product = forms.ModelChoiceField(queryset=product.objects.all())
+        municipality = forms.ModelChoiceField(queryset=Municipality.objects.all())
+        sowing_date = forms.DateField(widget=forms.SelectDateWidget)
+            
     def __str__(self):
         return f"{self.name} ({self.category.name})"
 
@@ -103,9 +109,11 @@ class Prices(models.Model):
         ('t', 'tonelada'),
         ('a', 'arroba')
     ]
-    value = models.DecimalField(decimal_places=2,max_digits=100)
+    value = models.DecimalField(decimal_places=2,max_digits=10)
+    quantity = models.DecimalField(max_digits=12, decimal_places=2)
     date = models.DateTimeField()
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='prices')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
     unit = models.CharField(
         max_length=20,
         choices=UNIT_CHOICES,
@@ -113,4 +121,4 @@ class Prices(models.Model):
     )
     quantity = models.DecimalField(max_digits=12, decimal_places=2)
     def __str__(self):
-        return f"{self.date} - {self.value}"
+        return f"{self.date} - {self.value} {self.unit} ({self.date.strftime('%d/%m/%Y')})"

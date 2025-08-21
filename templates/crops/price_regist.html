@@ -4,7 +4,6 @@
   <div class="container mt-4">
     <h2 class="mb-3">Registrar nuevo precio</h2>
 
-    <!-- mensajes de éxito o error -->
     {% if messages %}
       <div>
         {% for message in messages %}
@@ -15,7 +14,6 @@
       </div>
     {% endif %}
 
-    <!-- formulario -->
     <form method="post">
       {% csrf_token %}
       {{ form.as_p }}

@@ -7,7 +7,7 @@ from datetime import date
 from .models import Sowing, Product, Category, Municipality, Prices
 from .forms import SowingForm, ViabilityForm, PriceForm, PricePredictForm
 from .services import ClimateService, ViabilityEngine, ViabilityResult, calcular_cosecha_costos
-from .utils import calcular_viabilidad, calcular_cosecha_costos
+from .utils import calcular_cosecha_costos
 from weather.utils import get_weather
 
 is_admin = user_passes_test(lambda u: u.is_authenticated and u.role == 'admin')
@@ -22,7 +22,7 @@ def dashboard(request):
 
 @login_required
 def price_dashboard(request):
-    prices = Prices.objects.select_related('product')
+    prices = Prices.objects.filter(user=request.user).select_related('product')
     return render(request, 'crops/price_dashboard.html', {'prices': prices})
 
 @login_required
@@ -31,6 +31,7 @@ def price_create(request):
         form = PriceForm(request.POST)
         if form.is_valid():
             price = form.save(commit=False)
+            price.user = request.user
             price.save()
             
             messages.success(request, 'Precio registrado correctamente')
@@ -109,32 +110,43 @@ def sowing_create(request):
         if form.is_valid():
             sowing = form.save(commit=False)
             sowing.farmer = request.user
-            
+
             municipio = sowing.municipality
-            if municipio.latitude and municipio.longitude:
-                clima = get_weather(municipio.latitude, municipio.longitude)
-            else:
-                clima = None
-                
+            fecha_siembra = sowing.sowing_date
+            clima = ClimateService.get_conditions(municipio, fecha_siembra)
+            viabilidad = ViabilityEngine.evaluate(sowing.product, clima)
+
+            if 'confirmar_siembra' in request.POST:
+                sowing.status = 'failed' if viabilidad.level == 'baja' else 'ongoing'
+                sowing.save()
+
+                fecha_cosecha, costo_estimado = calcular_cosecha_costos(sowing)
+                sowing.estimated_harvest_date = fecha_cosecha
+                sowing.estimated_cost = costo_estimado
+                sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
+
+                messages.success(request, 'Siembra registrada correctamente')
+                return redirect('dashboard')
+
+            if viabilidad.level == 'baja':
+                return render(request, 'crops/sowing_confirm.html', {
+                    'form': form,
+                    'viabilidad': viabilidad,
+                    'sowing': sowing
+                })
+
+            sowing.status = 'ongoing'
             sowing.save()
-                
-            estimated_harvest_date, estimated_cost = calcular_cosecha_costos(sowing)
-            sowing.save()
-            sowing.estimated_harvest_date = estimated_harvest_date
-            sowing.estimated_cost = estimated_cost
+            fecha_cosecha, costo_estimado = calcular_cosecha_costos(sowing)
+            sowing.estimated_harvest_date = fecha_cosecha
+            sowing.estimated_cost = costo_estimado
             sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
-            
-            if estimated_harvest_date:
-                messages.info(request, f"Fecha estimada de cosecha: {estimated_harvest_date}")
-            if estimated_cost:
-                messages.info(request, f"Costo estimado: ${estimated_cost:,.2f}")
-            
+
             messages.success(request, 'Siembra registrada correctamente')
-            
             return redirect('dashboard')
     else:
         form = SowingForm()
-        
+
     return render(request, 'crops/sowing_form.html', {'form': form})
 
 @login_required
@@ -211,47 +223,11 @@ def viability(request):
     if request.method == 'POST':
         form = ViabilityForm(request.POST)
         if form.is_valid():
-            '''data = form.cleaned_data
-            product = data['product']
-
-            clima = ClimateService.get_conditions(municipality, sowing_date)
-            print("Clima API:", clima)
-
-            data['temperature_c'] = clima.get('temperature_c')
-            data['rainfall_mm'] = clima.get('rainfall_mm')
-            data['humidity_pct'] = clima.get('humidity_pct')
-
-            result = calcular_viabilidad(product, data, sowing_date=sowing_date)
-
-            if result['level'] in ['baja', 'media']:
-                all_products = Product.objects.all()
-                scored = []
-                for p in all_products:
-                    score_dict = calcular_viabilidad(p, data, sowing_date=sowing_date)
-                    scored.append((p, score_dict['score'], score_dict))
-                scored.sort(key=lambda x: x[1], reverse=True)
-                
-                for p, s in scored[:3]:
-                    if s > 0:
-                        alternatives.append({
-                            'cultivo': p.name,
-                            'cycle': p.cycle_days,
-                            'temp': f"{p.min_temp} - {p.max_temp} °C",
-                            'alt': f"{p.min_altitude} - {p.max_altitude} m",
-                            'costo_hectarea': p.cost_per_hectare,
-                            'costo_fanegada': p.cost_per_fanegada,
-                            'score': s
-                        })
-                alternatives = [{
-                    'cultivo': p.name,
-                    'score': s
-                } for p, s in scored[:3] if s > 0]'''
 
             data = form.cleaned_data
             municipality = data['municipality']
             sowing_date = data['sowing_date']
             clima = ClimateService.get_conditions(municipality, sowing_date)
-            print("Clima API:", clima)
 
             data['temperature_c'] = clima.get('temperature_c')
             data['rainfall_mm'] = clima.get('rainfall_mm')
@@ -259,7 +235,15 @@ def viability(request):
             all_products = Product.objects.all()
             scored = []
             for p in all_products:
-                score_dict = calcular_viabilidad(p, data)
+                from .services import ViabilityEngine
+
+                result = ViabilityEngine.evaluate(p, data)
+                score_dict = {
+                    "cultivo": p.name,
+                    "score": result.score * 100,
+                    "level": result.level,
+                    "reasons": result.reasons
+                }
                 scored.append((p, score_dict['score']))
             scored.sort(key=lambda x: x[1], reverse=True)
             
