@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Eliminar precio</h1>
+<p>¿Confirmas eliminar el precio de <strong>{{ price.product.name }}</strong> 
+   ({{ price.quantity }} {{ price.get_unit_display }}) con valor de {{ price.value }}?</p>
+<form method="post">{% csrf_token %}
+  <button type="submit">Sí, eliminar</button>
+  <a href="{% url 'dashboard' %}">Cancelar</a>
+</form>
+{% endblock %}

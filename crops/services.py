@@ -186,15 +186,7 @@ def calcular_cosecha_costos(sowing):
         
     if sowing.unit == 'hectarea' and cultivo.cost_per_hectare:
         sowing.estimated_cost = cultivo.cost_per_hectare * sowing.quantity
-    elif sowing.unit == 'fanegada' and cultivo.cost_per_fanegada:
+    elif sowing.unit == 'A' and cultivo.cost_per_fanegada:
         sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quantity
-    else:
-        sowing.estimated_cost = None
         
-    sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
-    
-    return {
-        "sowing": sowing,
-        "estimated_harvest_date": sowing.estimated_harvest_date,
-        "estimated_cost": sowing.estimated_cost
-    }
+    return sowing

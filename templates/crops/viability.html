@@ -10,9 +10,6 @@
         {{ form.municipality.label_tag }} {{ form.municipality }}
     </div>
     <div>
-        {{ form.product.label_tag }} {{ form.product }}
-    </div>
-    <div>
         {{ form.sowing_date.label_tag }} {{ form.sowing_date }}
     </div>
     {{ form.temperature_c }}
@@ -21,19 +18,6 @@
 
     <button type="submit">Calcular viabilidad</button>
 </form>
-
-{% if result %}
-<hr>
-<h2>Resultado para <strong>{{ form.cleaned_data.product }}</strong></h2>
-<p><strong>Nivel:</strong> {{ result.level|title }} | <strong>Score:</strong> {{ result.score|floatformat:0 }}%</p>
-
-<h3>Motivos:</h3>
-<ul>
-    {% for r in result.reasons %}
-        <li>{{ r }}</li>
-    {% endfor %}
-</ul>
-
 {% if alternatives %}
   <h3>3 cultivos recomendados para estas condiciones:</h3>
   <ol>
@@ -41,6 +25,5 @@
       <li>{{ c.cultivo }} (score: {{ c.score }}%)</li>
     {% endfor %}
   </ol>
-{% endif %}
 {% endif %}
 {% endblock %}

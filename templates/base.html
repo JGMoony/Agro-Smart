@@ -18,6 +18,10 @@
             <a href="{% url 'viability' %}">Viabilidad</a>
             <a href="{% url 'weather' %}">El clima</a>
             <a href="{% url 'my_sowings' %}">Mis siembras</a>
+            <a href="{% url 'price_dashboard' %}">Precios</a>
+            <a href="{% url 'price_predict' %}">Predecir nuevo precio</a>
+            <a href="{% url 'price_create' %}">Crear precio</a>
+
         {% elif user.role == 'admin' %}
             <a href="{% url 'admin_dashboard' %}">Panel Admin</a>
             <a href="{% url 'weather' %}">El clima</a>

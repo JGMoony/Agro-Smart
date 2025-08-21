@@ -20,7 +20,7 @@ def weather_view(request):
             context['municipality'] = municipality.name
             context['temperature'] = data['main']['temp']
             context['humidity'] = data['main']['humidity']
-            context['rainfall'] = data.get('rain', {}).get('1h', 0) 
+            context['rainfall'] = data.get('rain', {}).get('3h', 0)
             context['description'] = data['weather'][0]['description']
 
         except Municipality.DoesNotExist:

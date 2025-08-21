@@ -20,7 +20,11 @@ class Product(models.Model):
     max_altitude = models.IntegerField(null=True, blank=True)
     
     
+<<<<<<< HEAD
     cycle_days = models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
+=======
+    cycle_days =models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
+>>>>>>> origin/Julian
     cost_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     cost_per_fanegada = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     
@@ -96,3 +100,21 @@ class Crop(models.Model):
 
     def __str__(self):
         return self.name
+
+class Prices(models.Model):
+    UNIT_CHOICES = [
+        ('k', 'kilo'),
+        ('t', 'tonelada'),
+        ('a', 'arroba')
+    ]
+    value = models.DecimalField(decimal_places=2,max_digits=100)
+    date = models.DateTimeField()
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='prices')
+    unit = models.CharField(
+        max_length=20,
+        choices=UNIT_CHOICES,
+        help_text='Unidad de medida'
+    )
+    quantity = models.DecimalField(max_digits=12, decimal_places=2)
+    def __str__(self):
+        return f"{self.date} - {self.value}"

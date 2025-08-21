@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Registrar / Editar precio</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Guardar</button>
+  <a href="{% url 'dashboard' %}">Cancelar</a>
+</form>
+
+{% if price %}
+  <div style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
+    <h3>Información actual del precio</h3>
+    <ul>
+      <li><strong>Producto:</strong> {{ price.product.name }}</li>
+      <li><strong>Valor:</strong> {{ price.value }}</li>
+      <li><strong>Cantidad:</strong> {{ price.quantity }} {{ price.get_unit_display }}</li>
+      <li><strong>Fecha:</strong> {{ price.date|date:"d/m/Y H:i" }}</li>
+    </ul>
+  </div>
+{% endif %}
+{% endblock %}
