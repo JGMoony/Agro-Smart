@@ -1,0 +1,447 @@
+main > * {
+    max-width: 600px;
+    width: 100%;
+    display: flex;
+    
+}
+.body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #fbe9e7 100%);
+    display: block;
+    float: left;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    
+}
+/* ======== Navbar Agronómico ======== */
+.navbar-agro {
+    width: 100%;
+    background: linear-gradient(90deg, #388e3c 0%, #8bc34a 100%);
+    box-shadow: 0 2px 8px #c8e6c9;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 60px;
+    border-bottom: 3px solid #a5d6a7;
+    margin-bottom: 5px;
+}
+
+.navbar-agro .navbar-brand {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 0 24px;
+    text-shadow: 0 2px 8px #c8e6c9;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-agro .navbar-brand .icon {
+    margin-right: 10px;
+    font-size: 1.5em;
+}
+
+.navbar-agro .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 0 24px;
+}
+
+.navbar-agro .navbar-link {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background 0.2s, color 0.2s;
+    letter-spacing: 1px;
+}
+
+.navbar-agro .navbar-link:hover {
+    background: #a5d6a7;
+    color: #388e3c;
+    text-decoration: underline;
+}
+
+.navbar-agro .navbar-btn {
+    background: linear-gradient(90deg, #8bc34a 0%, #388e3c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    padding: 8px 20px;
+    margin-left: 12px;
+    box-shadow: 0 2px 8px #c8e6c9;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+    letter-spacing: 1px;
+}
+.navbar-agro .navbar-btn:hover {
+    background: linear-gradient(90deg, #388e3c 0%, #8bc34a 100%);
+    box-shadow: 0 4px 16px #a5d6a7;
+    transform: translateY(-2px) scale(1.03);
+}
+.navbar-agro .navbar-btn:active {
+    background: linear-gradient(90deg, #558b2f 0%, #8bc34a 100%);
+    box-shadow: 0 2px 8px #c8e6c9;
+    transform: scale(0.98);
+}
+
+@media (max-width: 700px) {
+    .navbar-agro {
+        flex-direction: column;
+        align-items: flex-start;
+        min-height: 80px;
+    }
+    .navbar-agro .navbar-links {
+        flex-direction: column;
+        gap: 8px;
+        padding: 0 12px 12px 12px;
+    }
+    .navbar-agro .navbar-brand {
+        font-size: 1.3rem;
+        padding: 8px 12px;
+    }
+}
+    body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        background: url(Agro-Smart\static\css\img\Agricultura-.jpg.jpg) no-repeat center center fixed;
+        background-size: cover;
+        display: block;
+        align-items: center;
+        justify-content: center;
+        background-color: aqua;
+    }
+
+    .login-container {
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 8px 32px 0 rgba(34, 49, 63, 0.18);
+        border-radius: 16px;
+        padding: 40px 32px;
+        max-width: 350px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .login-container h2 {
+        color: #2e7d32;
+        margin-bottom: 24px;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .login-container label {
+        color: #333;
+        font-size: 15px;
+        margin-bottom: 6px;
+        align-self: flex-start;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+        border: 1px solid #bdbdbd;
+        border-radius: 8px;
+        background: #f9f9f9;
+        font-size: 15px;
+        transition: border-color 0.2s;
+    }
+
+    .login-container input[type="text"]:focus,
+    .login-container input[type="password"]:focus {
+        border-color: #388e3c;
+        outline: none;
+    }
+
+    .login-container button {
+        width: 100%;
+        padding: 12px 0;
+        background: linear-gradient(90deg, #43a047 0%, #388e3c 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .login-container button:hover {
+        background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
+    }
+
+    .login-container .forgot-link {
+        margin-top: 14px;
+        font-size: 14px;
+        color: #388e3c;
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+
+    .login-container .forgot-link:hover {
+        color: #2e7d32;
+    }
+
+
+    /* ======== Estilos de registro ======== */
+    .register-container {
+        max-width: 420px;
+        margin: 48px auto;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px rgba(34, 139, 34, 0.12);
+        padding: 32px 28px;
+    }
+
+    .register-title {
+        text-align: center;
+        font-size: 2rem;
+        color: #228B22;
+        margin-bottom: 18px;
+        font-weight: 600;
+        letter-spacing: 1px;
+    }
+
+    .register-form label {
+        display: block;
+        margin-bottom: 6px;
+        color: #2e4d2e;
+        font-weight: 500;
+    }
+
+    .register-form input,
+    .register-form select {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 18px;
+        border: 1px solid #b3d9b3;
+        border-radius: 6px;
+        background: #f8fff8;
+        font-size: 1rem;
+        transition: border-color 0.2s;
+    }
+
+    .register-form input:focus,
+    .register-form select:focus {
+        border-color: #228B22;
+        outline: none;
+    }
+
+    .register-btn {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(90deg, #228B22 60%, #6abf69 100%);
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .register-btn:hover {
+        background: linear-gradient(90deg, #228B22 80%, #4e944f 100%);
+    }
+
+    .register-link {
+        display: block;
+        text-align: center;
+        margin-top: 18px;
+        color: #228B22;
+        text-decoration: none;
+        font-size: 0.98rem;
+        transition: color 0.2s;
+    }
+
+    .register-link:hover {
+        color: #145214;
+        text-decoration: underline;
+    }
+
+    /* Mensajes de error y éxito */
+    .form-message {
+        text-align: center;
+        margin-bottom: 16px;
+        font-size: 1rem;
+        padding: 8px;
+        border-radius: 5px;
+    }
+
+    .form-message.error {
+        background: #ffeaea;
+        color: #b30000;
+        border: 1px solid #ffb3b3;
+    }
+
+    .form-message.success {
+        background: #eaffea;
+        color: #228B22;
+        border: 1px solid #b3d9b3;
+    }
+
+    /* Responsive */
+    @media (max-width: 500px) {
+        .register-container {
+            padding: 18px 8px;
+        }
+        .register-title {
+            font-size: 1.4rem;
+        }
+       
+    }
+
+    
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #fbe9e7 100%);
+}
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    width: 100%;
+}
+
+.login-box, .register-container {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 8px 32px 0 rgba(34, 49, 63, 0.18);
+    border-radius: 18px;
+    padding: 40px 32px;
+    max-width: 380px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 2px solid #a5d6a7;
+}
+
+.login-box h2, .register-title {
+    color: #388e3c;
+    margin-bottom: 24px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 2rem;
+    text-shadow: 0 2px 8px #c8e6c9;
+}
+
+.login-container label, .register-form label {
+    color: #4e944f;
+    font-size: 15px;
+    margin-bottom: 6px;
+    align-self: flex-start;
+    font-weight: 500;
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"],
+.register-form input,
+.register-form select {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 18px;
+    border: 1px solid #bdbdbd;
+    border-radius: 8px;
+    background: #f9fbe7;
+    font-size: 15px;
+    transition: border-color 0.2s;
+}
+
+.login-container input[type="text"]:focus,
+.login-container input[type="password"]:focus,
+.register-form input:focus,
+.register-form select:focus {
+    border-color: #388e3c;
+    outline: none;
+}
+
+.login-container button, .register-btn {
+    width: 100%;
+    padding: 12px 0;
+    background: linear-gradient(90deg, #43a047 0%, #388e3c 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px #c8e6c9;
+}
+
+.login-container button:hover, .register-btn:hover {
+    background: linear-gradient(90deg, #388e3c 0%, #43a047 100%);
+}
+
+.login-container .forgot-link, .register-link {
+    margin-top: 14px;
+    font-size: 14px;
+    color: #388e3c;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.login-container .forgot-link:hover, .register-link:hover {
+    color: #2e7d32;
+    text-decoration: underline;
+}
+
+.form-message {
+    text-align: center;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    padding: 8px;
+    border-radius: 5px;
+}
+
+.form-message.error {
+    background: #ffeaea;
+    color: #b30000;
+    border: 1px solid #ffb3b3;
+}
+
+.form-message.success {
+    background: #eaffea;
+    color: #228B22;
+    border: 1px solid #b3d9b3;
+}
+
+@media (max-width: 500px) {
+    .login-box, .register-container {
+        padding: 18px 8px;
+    }
+    .login-box h2, .register-title {
+        font-size: 1.4rem;
+    }
+}
+/* ===== Estilos generales ===== */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(120deg, #dcedc8 0%, #f1f8e9 100%);
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+

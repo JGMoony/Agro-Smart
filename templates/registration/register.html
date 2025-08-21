@@ -1,9 +1,17 @@
 {% extends "base.html" %}
 {% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'css/register.css' %}">
+{% endblock %}
+
 {% block content %}
-<h1>Registro</h1>
-<form method="post">{% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Crear cuenta</button>
-</form>
+<div class="register-container">
+  <h1 class="register-title">Registro</h1>
+  <form method="post" class="register-form">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="register-btn">Crear cuenta</button>
+  </form>
+</div>
+
 {% endblock %}

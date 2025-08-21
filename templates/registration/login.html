@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="../../static/css/styles.css">
+{% endblock %}
+
+{% block title %}
+{% endblock %}
+
 {% block content %}
-  <h2>Iniciar sesión en Agro Smart</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Ingresar</button>
-</form>
+<div class="login-box">
+  <h2 class="caja">Iniciar sesión en Agro Smart</h2>
+  <form method="post" class="login-container">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Ingresar</button>
+  </form>
 
-<p>¿No tienes cuenta? <a href="{% url 'register' %}">Registrarse</a></p>
-
+  <p>¿No tienes cuenta? <a href="{% url 'register' %}">Registrarse</a></p>
+</div>
+  
 {% endblock %}

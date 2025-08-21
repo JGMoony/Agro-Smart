@@ -10,36 +10,35 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-<header>
-<nav>
-    {% if user.is_authenticated %}
-        {% if user.role == 'farmer' %}
-            <a href="{% url 'sowing_create' %}">Nueva siembra</a>
-            <a href="{% url 'viability' %}">Viabilidad</a>
-            <a href="{% url 'weather' %}">El clima</a>
-            <a href="{% url 'my_sowings' %}">Mis siembras</a>
-            <a href="{% url 'price_dashboard' %}">Precios</a>
-            <a href="{% url 'price_predict' %}">Predecir nuevo precio</a>
-            <a href="{% url 'price_create' %}">Crear precio</a>
 
-        {% elif user.role == 'admin' %}
-            <a href="{% url 'admin_dashboard' %}">Panel Admin</a>
-            <a href="{% url 'weather' %}">El clima</a>
-            <a href="{% url 'reports' %}">Generar reportes</a>
-            <a href="{% url 'admin_create_user' %}">Registrar usuario</a>
-        {% endif %}
+    <nav class="navbar-agro">
+        <div class="navbar-brand">
+            <span class="icon">🌱</span>Agro Smart
+        </div>
+        <div class="navbar-links">
+            {% if user.is_authenticated %}
+                {% if user.role == 'farmer' %}
+                    <a class="navbar-link" href="{% url 'sowing_create' %}">Nueva siembra</a>
+                    <a class="navbar-link" href="{% url 'viability' %}">Viabilidad</a>
+                    <a class="navbar-link" href="{% url 'weather' %}">El clima</a>
+                    <a class="navbar-link" href="{% url 'my_sowings' %}">Mis siembras</a>
+                {% elif user.role == 'admin' %}
+                    <a class="navbar-link" href="{% url 'admin_dashboard' %}">Panel Admin</a>
+                    <a class="navbar-link" href="{% url 'weather' %}">El clima</a>
+                    <a class="navbar-link" href="{% url 'reports' %}">Generar reportes</a>
+                    <a class="navbar-link" href="{% url 'admin_create_user' %}">Registrar usuario</a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="navbar-btn">Salir</button>
+                </form>
+            {% endif %}
+        </div>
+    </nav>
+    {% for msg in messages %}
+        <p class="msg {{ msg.tags }}">{{ msg }}</p>
+    {% endfor %}
 
-        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" style="background:none; border:none; color:inherit; cursor:pointer;">Salir</button>
-        </form>
-    {% endif %}
-</nav>
-
-{% for msg in messages %}
-    <p class="msg {{ msg.tags }}">{{ msg }}</p>
-{% endfor %}
-</header>
 <main>
 {% block content %}{% endblock %}
 </main>

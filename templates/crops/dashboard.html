@@ -1,11 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 {% block content %}
-<h1>Mis siembras</h1>
-<table>
+<h1 class="dashboard-title">Mis siembras</h1>
+<div class="dashboard-table-container">
+<table class="dashboard-table">
 <thead>
 <tr>
-    <th>Producto</th><th>Categoría</th><th>Cantidad</th><th>Fecha siembra</th><th>Municipio</th><th>Estado</th><th></th>
+    <th>Producto</th>
+    <th>Categoría</th>
+    <th>Cantidad</th>
+    <th>Fecha siembra</th>
+    <th>Municipio</th>
+    <th>Estado</th>
+    <th>Acciones</th>
 </tr>
 </thead>
 <tbody>
@@ -18,9 +25,9 @@
     <td>{{ s.municipality.name }}</td>
     <td>{{ s.get_status_display }}</td>
     <td>
-        <a href="{% url 'sowing_edit' s.id %}">Editar</a>
+        <a href="{% url 'sowing_edit' s.id %}" class="dashboard-btn dashboard-btn-edit">Editar</a>
         <form method="post" action="{% url 'sowing_delete' s.id %}" style="display:inline;">
-        {% csrf_token %}<button type="submit">Eliminar</button>
+        {% csrf_token %}<button type="submit" class="dashboard-btn dashboard-btn-delete">Eliminar</button>
         </form>
     </td>
     </tr>
@@ -29,4 +36,80 @@
 {% endfor %}
 </tbody>
 </table>
+</div>
 {% endblock %}
+
+<style>
+.dashboard-table-container {
+    width: 100%;
+    max-width: 900px;
+    margin: 32px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(34, 139, 34, 0.12);
+    padding: 24px;
+    overflow-x: auto;
+}
+
+.dashboard-title {
+    text-align: center;
+    font-size: 2.2rem;
+    color: #388e3c;
+    margin-bottom: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.dashboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    background: #f9fbe7;
+}
+
+.dashboard-table th, .dashboard-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #a5d6a7;
+    text-align: left;
+}
+
+.dashboard-table th {
+    background: #388e3c;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.dashboard-table tr:nth-child(even) {
+    background: #e8f5e9;
+}
+
+.dashboard-btn {
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.98rem;
+    border: none;
+    cursor: pointer;
+    margin-right: 6px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dashboard-btn-edit {
+    background: #8bc34a;
+    color: #fff;
+}
+
+.dashboard-btn-edit:hover {
+    background: #558b2f;
+}
+
+.dashboard-btn-delete {
+    background: #e57373;
+    color: #fff;
+}
+
+.dashboard-btn-delete:hover {
+    background: #b71c1c;
+}
+</style>
