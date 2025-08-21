@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Calcular promedio</button>
+</form>
+
+{% if predicted_price %}
+  <p>El precio promedio del producto es: {{ predicted_price|floatformat:2 }}</p>
+{% endif %}
+{% endblock %}

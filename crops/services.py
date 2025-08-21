@@ -184,6 +184,6 @@ def calcular_cosecha_costos(sowing):
     if sowing.unit == 'ha' and cultivo.cost_per_hectare:
         sowing.estimated_cost = cultivo.cost_per_hectare * sowing.quantity
     elif sowing.unit == 'A' and cultivo.cost_per_fanegada:
-        sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quiantity
+        sowing.estimated_cost = cultivo.cost_per_fanegada * sowing.quantity
         
     return sowing

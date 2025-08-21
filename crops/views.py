@@ -2,10 +2,10 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.db.models import Count
+from django.db.models import Count, Avg
 from datetime import date
-from .models import Sowing, Product, Category, Municipality
-from .forms import SowingForm, ViabilityForm
+from .models import Sowing, Product, Category, Municipality, Prices
+from .forms import SowingForm, ViabilityForm, PriceForm, PricePredictForm
 from .services import ClimateService, ViabilityEngine, ViabilityResult, calcular_cosecha_costos
 from .utils import calcular_viabilidad
 from weather.utils import get_weather
@@ -19,6 +19,80 @@ def home(request):
 def dashboard(request):
     sowings = Sowing.objects.filter(farmer=request.user).select_related('product__category','municipality')
     return render(request, 'crops/dashboard.html', {'sowings': sowings})
+
+@login_required
+def price_create(request):
+    if request.method == 'POST':
+        form = PriceForm(request.POST)
+        if form.is_valid():
+            price = form.save(commit=False)
+            price.save()
+            
+            messages.success(request, 'Precio registrado correctamente')
+            return redirect('dashboard')
+    else:
+        form = PriceForm()
+        
+    return render(request, 'crops/price_form.html', {'form': form})
+
+@login_required
+def price_edit(request, pk):
+    price = get_object_or_404(price, pk=pk, farmer=request.user)
+    if request.method == 'POST':
+        form = PriceForm(request.POST, instance=price)
+        if form.is_valid():
+            price = form.save(commit=False)
+            price.save()
+            form.save()
+            messages.success(request, 'Siembra actualizada')
+            return redirect('dashboard')
+    else:
+        form = PriceForm(instance=price)
+        
+    return render(request, 'crops/price_form.html', {'form': form})
+
+@login_required
+def price_delete(request, pk):
+    price = get_object_or_404(price, pk=pk, farmer=request.user)
+    if request.method == 'POST':
+        price.delete()
+        messages.info(request, 'Siembra eliminada')
+        return redirect('dashboard')
+    return render(request, 'crops/price_confirm_delete.html', {'price': price})
+
+@login_required
+def price_predit(request):
+    predicted_price = None
+    UNIT_FACTORS = {
+        'k': 1,       # kilo
+        'a': 12.5,    # arroba
+        't': 1000,    # tonelada
+    }
+    if request.method =='POST':
+        form = PricePredictForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            product = data['product']
+            prices = product.prices.all()
+
+            UNIT_FACTORS = {'k': 1, 'a': 12.5, 't': 1000}
+
+            total = 0
+            count = 0
+            for p in prices:
+                factor = UNIT_FACTORS.get(p.unit, 1)
+                total += (p.value * p.quantity) / factor
+                count += 1
+
+            predicted_price = total / count if count > 0 else None
+   
+    else:
+        form = PricePredictForm()
+
+    return render(request, 'crops/price_predict.html', {
+        'form': form,
+        'predicted_price': predicted_price
+    })
 
 @login_required
 def sowing_create(request):
@@ -108,10 +182,8 @@ def viability(request):
     if request.method == 'POST':
         form = ViabilityForm(request.POST)
         if form.is_valid():
-            data = form.cleaned_data
+            '''data = form.cleaned_data
             product = data['product']
-            municipality = data['municipality']
-            sowing_date = data['sowing_date']
 
             clima = ClimateService.get_conditions(municipality, sowing_date)
             print("Clima API:", clima)
@@ -141,12 +213,41 @@ def viability(request):
                             'costo_fanegada': p.cost_per_fanegada,
                             'score': s
                         })
+                alternatives = [{
+                    'cultivo': p.name,
+                    'score': s
+                } for p, s in scored[:3] if s > 0]'''
 
+            data = form.cleaned_data
+            municipality = data['municipality']
+            sowing_date = data['sowing_date']
+            clima = ClimateService.get_conditions(municipality, sowing_date)
+            print("Clima API:", clima)
+
+            data['temperature_c'] = clima.get('temperature_c')
+            data['rainfall_mm'] = clima.get('rainfall_mm')
+            data['humidity_pct'] = clima.get('humidity_pct')
+            all_products = Product.objects.all()
+            scored = []
+            for p in all_products:
+                score_dict = calcular_viabilidad(p, data)
+                scored.append((p, score_dict['score']))
+            scored.sort(key=lambda x: x[1], reverse=True)
+            
+            for p, s in scored[:3]:
+                if s > 0:
+                    alternatives.append({
+                        'cultivo': p.name,
+                        'cycle': p.cycle_days,
+                        'temp': f"{p.min_temp} - {p.max_temp} °C",
+                        'alt': f"{p.min_altitude} - {p.max_altitude} m",
+                        'costo_hectarea': p.cost_per_hectare,
+                        'costo_fanegada': p.cost_per_fanegada,
+                        'score': s
+                    })
     else:
         form = ViabilityForm()
-
     return render(request, 'crops/viability.html', {
         'form': form,
-        'result': result,
         'alternatives': alternatives
     })

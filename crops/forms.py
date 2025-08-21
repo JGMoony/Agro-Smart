@@ -1,5 +1,5 @@
 from django import forms
-from .models import Sowing, Product, Municipality
+from .models import Sowing, Product, Municipality, Prices
 
 class SowingForm(forms.ModelForm):
     UNIDADES = [
@@ -21,9 +21,28 @@ class SowingForm(forms.ModelForm):
             'sowing_date': forms.DateInput(attrs={'type': 'date'}),
         }
         
+class PriceForm(forms.ModelForm):
+    UNIDADES = [
+        ('k', 'kilo'),
+        ('t', 'tonelada'),
+        ('a', 'arroba')
+    ]
+
+    class Meta:
+        model = Prices
+        fields = ['value', 'date', 'product', 'unit', 'quantity']
+        labels = {
+            'product': 'Producto',
+            'quantity': 'Cantidad',
+            'unit': 'Unidad',
+            'date': 'Fecha del Precio',
+            'value': 'Valor'
+        }
+        widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
 class ViabilityForm(forms.Form):
-    product = forms.ModelChoiceField(queryset=Product.objects.all(), label='Producto')
     municipality = forms.ModelChoiceField(queryset=Municipality.objects.all(), label='Municipio')
     sowing_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}), label='Fecha de Siembra')
     temperature_c = forms.FloatField(label="Temperatura (°C)", required=False, widget=forms.HiddenInput())
@@ -37,3 +56,6 @@ class ViabilityForm(forms.Form):
             'rainfall_mm': self.cleaned_data['rainfall_mm'],
             'humidity_pct': self.cleaned_data['humidity_pct'],
         }
+
+class PricePredictForm(forms.Form):
+    product = forms.ModelChoiceField(queryset=Product.objects.all(), label='Producto')
