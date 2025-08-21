@@ -20,11 +20,7 @@ class Product(models.Model):
     max_altitude = models.IntegerField(null=True, blank=True)
     
     
-<<<<<<< HEAD
     cycle_days = models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
-=======
-    cycle_days =models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
->>>>>>> origin/Julian
     cost_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     cost_per_fanegada = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     

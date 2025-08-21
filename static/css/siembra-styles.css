@@ -1,111 +1,99 @@
-
-    /* Estilos generales del body */
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        background-color: #f2f2f2;
-        color: #333;
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background-color: #f2f2f2;
+    color: #333;
     }
 
-    /* Contenedor principal de la página */
-    .siembra-container {
-        max-width: 600px;
-        margin: 50px auto;
-        padding: 30px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(0, 128, 0, 0.2);
-        border: 2px solid #4CAF50;
+.siembra-container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 128, 0, 0.2);
+    border: 2px solid #4CAF50;
     }
 
-    /* Título principal */
-    .siembra-title {
-        text-align: center;
-        color: #2e7d32;
-        margin-bottom: 20px;
-    }
+.siembra-title {
+    text-align: center;
+    color: #2e7d32;
+    margin-bottom: 20px;
+}
 
-    /* Cada campo de formulario */
-    .siembra-form-group {
-        margin-bottom: 15px;
-    }
+.siembra-form-group {
+    margin-bottom: 15px;
+}
 
-    /* Etiquetas de los campos */
-    .siembra-form-group label {
-        display: block;
-        font-weight: bold;
-        color: #2e7d32;
-        margin-bottom: 5px;
-    }
+.siembra-form-group label {
+    display: block;
+    font-weight: bold;
+    color: #2e7d32;
+    margin-bottom: 5px;
+}
 
-    /* Inputs, selects y textareas */
-    .siembra-form-group input,
-    .siembra-form-group select,
-    .siembra-form-group textarea {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #4CAF50;
-        border-radius: 5px;
-        font-size: 16px;
-    }
+.siembra-form-group input,
+.siembra-form-group select,
+.siembra-form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #4CAF50;
+    border-radius: 5px;
+    font-size: 16px;
+}
 
-    /* Inputs al hacer focus */
-    .siembra-form-group input:focus,
-    .siembra-form-group select:focus,
-    .siembra-form-group textarea:focus {
-        border-color: #2e7d32;
-        outline: none;
-        box-shadow: 0 0 5px #2e7d32;
-    }
+.siembra-form-group input:focus,
+.siembra-form-group select:focus,
+.siembra-form-group textarea:focus {
+    border-color: #2e7d32;
+    outline: none;
+    box-shadow: 0 0 5px #2e7d32;
+}
 
-    /* Botón principal */
-    .siembra-button {
-        background-color: #4CAF50;
-        color: #ffffff;
-        padding: 12px 25px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s;
-        display: block;
-        width: 100%;
-        margin-top: 10px;
-    }
+.siembra-button {
+    background-color: #4CAF50;
+    color: #ffffff;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+}
 
-    .siembra-button:hover {
-        background-color: #388E3C;
-    }
+.siembra-button:hover {
+    background-color: #388E3C;
+}
 
-    /* Mensaje de éxito */
-    .siembra-success {
-        color: #2e7d32;
-        font-weight: bold;
-        margin-top: 15px;
-        text-align: center;
-    }
+.siembra-success {
+    color: #2e7d32;
+    font-weight: bold;
+    margin-top: 15px;
+    text-align: center;
+}
 
-    /* Link a lista de siembras */
-    .siembra-link {
-        display: block;
-        text-align: center;
-        margin-top: 20px;
-        color: #4CAF50;
-        text-decoration: none;
-        font-weight: bold;
-    }
+.siembra-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
 
-    .siembra-link:hover {
-        text-decoration: underline;
-    }
+.siembra-link:hover {
+    text-decoration: underline;
+}
 
-    /* Contenedores internos diferenciables */
-    .siembra-container-diferente {
-        background-color: #e8f5e9;
-        border: 2px dashed #2e7d32;
-        padding: 15px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-        margin-right: 25px;
-    }
+.siembra-container-diferente {
+    background-color: #e8f5e9;
+    border: 2px dashed #2e7d32;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    margin-right: 25px;
+}

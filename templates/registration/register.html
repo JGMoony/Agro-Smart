@@ -8,10 +8,16 @@
 {% block content %}
 <div class="register-container">
   <h1 class="register-title">Registro</h1>
-  <form method="post" class="register-form">{% csrf_token %}
+  <form method="post" class="register-form">
+    {% csrf_token %}
     {{ form.as_p }}
     <button type="submit" class="register-btn">Crear cuenta</button>
   </form>
+
+  <p class="login-redirect">
+    ¿Ya tienes cuenta?
+    <a href="{% url 'login' %}">Ingresar</a>
+  </p>
 </div>
 
 {% endblock %}

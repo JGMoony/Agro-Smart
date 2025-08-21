@@ -93,7 +93,7 @@ def price_predit(request):
                 count += 1
 
             predicted_price = total / count if count > 0 else None
-   
+
     else:
         form = PricePredictForm()
 
