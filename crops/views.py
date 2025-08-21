@@ -21,6 +21,11 @@ def dashboard(request):
     return render(request, 'crops/dashboard.html', {'sowings': sowings})
 
 @login_required
+def price_dashboard(request):
+    prices = Prices.objects.select_related('product')
+    return render(request, 'crops/price_dashboard.html', {'prices': prices})
+
+@login_required
 def price_create(request):
     if request.method == 'POST':
         form = PriceForm(request.POST)
@@ -33,32 +38,35 @@ def price_create(request):
     else:
         form = PriceForm()
         
-    return render(request, 'crops/price_form.html', {'form': form})
+    return render(request, 'crops/price_regist.html', {'form': form})
 
 @login_required
 def price_edit(request, pk):
-    price = get_object_or_404(price, pk=pk, farmer=request.user)
+    price = get_object_or_404(Prices, pk=pk) 
+
     if request.method == 'POST':
         form = PriceForm(request.POST, instance=price)
         if form.is_valid():
-            price = form.save(commit=False)
-            price.save()
             form.save()
-            messages.success(request, 'Siembra actualizada')
+            messages.success(request, 'Precio actualizado correctamente')
             return redirect('dashboard')
     else:
         form = PriceForm(instance=price)
         
-    return render(request, 'crops/price_form.html', {'form': form})
+    return render(request, 'crops/price_edit.html', {'form': form, 'price': price})
+
 
 @login_required
 def price_delete(request, pk):
-    price = get_object_or_404(price, pk=pk, farmer=request.user)
+    price = get_object_or_404(Prices, pk=pk)
+
     if request.method == 'POST':
         price.delete()
-        messages.info(request, 'Siembra eliminada')
+        messages.info(request, 'Precio eliminado')
         return redirect('dashboard')
+
     return render(request, 'crops/price_confirm_delete.html', {'price': price})
+
 
 @login_required
 def price_predit(request):

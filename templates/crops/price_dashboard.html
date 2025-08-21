@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<h1>Mis precios</h1>
+<table>
+<thead>
+<tr>
+    <th>Producto</th>
+    <th>Valor</th>
+    <th>Cantidad</th>
+    <th>Unidad</th>
+    <th>Fecha</th>
+    <th></th>
+</tr>
+</thead>
+<tbody>
+{% for p in prices %}
+    <tr>
+        <td>{{ p.product.name }}</td>
+        <td>{{ p.value }}</td>
+        <td>{{ p.quantity }}</td>
+        <td>{{ p.get_unit_display }}</td>
+        <td>{{ p.date|date:"d/m/Y H:i" }}</td>
+        <td>
+            <a href="{% url 'price_edit' p.id %}">Editar</a>
+            <form method="post" action="{% url 'price_delete' p.id %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Eliminar</button>
+            </form>
+        </td>
+    </tr>
+{% empty %}
+    <tr><td colspan="6">Sin precios aún.</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h2 class="mb-3">Registrar nuevo precio</h2>
+
+    <!-- mensajes de éxito o error -->
+    {% if messages %}
+      <div>
+        {% for message in messages %}
+          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <!-- formulario -->
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <button type="submit">Guardar</button>
+      <a href="{% url 'dashboard' %}">Cancelar</a>
+    </form>
+  </div>
+{% endblock %}
