@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import dashboard, sowing_create, sowing_edit, sowing_delete, admin_dashboard, viability, price_create, price_delete, price_edit, price_predit,price_dashboard
+from .views import dashboard, sowing_create, sowing_edit, sowing_delete, admin_dashboard, viability, price_create, price_delete, price_edit, price_predit,price_dashboard, production_view
 from . import views
 
 urlpatterns = [
@@ -17,4 +17,5 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('mis-siembras/', dashboard, name='my_sowings'),
     path('reports/', views.reports_view, name='reports'),
+    path('production', production_view, name='production')
 ]

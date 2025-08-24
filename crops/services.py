@@ -1,9 +1,12 @@
+from datetime import date, timedelta
 from dataclasses import dataclass
+from django.db.models import Sum, F, FloatField
+from django.db.models.functions import Coalesce
 from typing import Dict, List
 from .models import Sowing, Product, Municipality
 import requests
 from django.conf import settings
-from datetime import timedelta
+
 
 class ClimateService:
     @staticmethod
@@ -92,7 +95,6 @@ class ViabilityEngine:
                 'temp': f"{p.min_temp}–{p.max_temp} °C" if p.min_temp and p.max_temp else "N/D",
                 'alt': f"{p.min_altitude}–{p.max_altitude} m" if p.min_altitude and p.max_altitude else "N/D",
                 'costo_hectarea': p.cost_per_hectare or 0,
-                'costo_fanegada': p.cost_per_fanegada or 0,
             })
 
         return sorted(candidates, key=lambda x: x['score'], reverse=True)[:3]
@@ -179,9 +181,32 @@ def calcular_cosecha_costos(sowing: Sowing):
 
     if unidad == 'hectarea' and cultivo.cost_per_hectare:
         costo = cultivo.cost_per_hectare * cantidad
-    elif unidad == 'fanegada' and cultivo.cost_per_fanegada:
-        costo = cultivo.cost_per_fanegada * cantidad
     else:
         costo = None
 
     return fecha_cosecha, costo
+
+
+def calcular_produccion_periodo(farmer, meses=6, municipio=None, producto=None):
+    hoy = date.today()
+    fin_periodo = hoy + timedelta(days=meses * 30) 
+
+    queryset = Sowing.objects.filter(
+        farmer=farmer,
+        sowing_date__lte=fin_periodo,
+        status='ongoing'
+    )
+
+    if municipio:
+        queryset = queryset.filter(municipality=municipio)
+    if producto:
+        queryset = queryset.filter(product=producto)
+
+    produccion = queryset.aggregate(
+        total_produccion=Coalesce(
+            Sum(F("area") * F("quantity"), output_field=FloatField()), 
+            0.0
+        )
+    )
+
+    return round(produccion["total_produccion"], 2)

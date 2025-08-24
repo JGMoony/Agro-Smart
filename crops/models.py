@@ -1,8 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-from crops import forms
-
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     def __str__(self):
@@ -23,16 +21,11 @@ class Product(models.Model):
     
     cycle_days = models.IntegerField(null=True, blank=True, help_text="Días aproximados para cosecha")
     cost_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
-    cost_per_fanegada = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     
+    yield_per_hectare = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     class Meta:
         unique_together = ('category', 'name')
         ordering = ['category__name', 'name']
-
-    class ViabilityForm(forms.Form):
-        product = forms.ModelChoiceField(queryset=product.objects.all())
-        municipality = forms.ModelChoiceField(queryset=Municipality.objects.all())
-        sowing_date = forms.DateField(widget=forms.SelectDateWidget)
             
     def __str__(self):
         return f"{self.name} ({self.category.name})"
@@ -56,7 +49,6 @@ class Sowing(models.Model):
     )
     UNIT_CHOICES = [
     ('hectarea', 'Hectárea'),
-    ('fanegada', 'Fanegada'),
 ]
 
     unit = models.CharField(

@@ -6,7 +6,7 @@ from django.db.models import Count, Avg, Sum
 from datetime import date
 from .models import Sowing, Product, Category, Municipality, Prices
 from .forms import SowingForm, ViabilityForm, PriceForm, PricePredictForm
-from .services import ClimateService, ViabilityEngine, ViabilityResult, calcular_cosecha_costos
+from .services import ClimateService, ViabilityEngine, ViabilityResult, calcular_cosecha_costos, calcular_produccion_periodo
 from .utils import calcular_cosecha_costos
 from weather.utils import get_weather
 
@@ -17,8 +17,17 @@ def home(request):
 
 @login_required
 def dashboard(request):
-    sowings = Sowing.objects.filter(farmer=request.user).select_related('product__category','municipality')
-    return render(request, 'crops/dashboard.html', {'sowings': sowings})
+    sowings = Sowing.objects.filter(
+        farmer=request.user
+    ).select_related('product__category','municipality')
+
+    produccion_6_meses = calcular_produccion_periodo(request.user)
+
+    return render(request, 'crops/dashboard.html', {
+        'sowings': sowings,
+        'produccion_6_meses': produccion_6_meses
+    })
+
 
 @login_required
 def price_dashboard(request):
@@ -68,7 +77,6 @@ def price_delete(request, pk):
 
     return render(request, 'crops/price_confirm_delete.html', {'price': price})
 
-
 @login_required
 def price_predit(request):
     predicted_price = None
@@ -116,17 +124,18 @@ def sowing_create(request):
             clima = ClimateService.get_conditions(municipio, fecha_siembra)
             viabilidad = ViabilityEngine.evaluate(sowing.product, clima)
 
-            if 'confirmar_siembra' in request.POST:
-                sowing.status = 'failed' if viabilidad.level == 'baja' else 'ongoing'
-                sowing.save()
+            sowing.status = 'ongoing' if viabilidad.level != 'baja' else 'failed'
+            sowing.save()
 
-                fecha_cosecha, costo_estimado = calcular_cosecha_costos(sowing)
-                sowing.estimated_harvest_date = fecha_cosecha
-                sowing.estimated_cost = costo_estimado
-                sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
+            fecha_cosecha, costo_estimado = calcular_cosecha_costos(sowing)
+            sowing.estimated_harvest_date = fecha_cosecha
+            sowing.estimated_cost = costo_estimado
+            sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
 
-                messages.success(request, 'Siembra registrada correctamente')
-                return redirect('dashboard')
+            messages.success(request, 'Siembra registrada correctamente')
+
+            produccion_total = calcular_produccion_periodo(request.user, meses=6)
+            messages.info(request, f"Producción estimada próximos 6 meses: {produccion_total:.2f} ha")
 
             if viabilidad.level == 'baja':
                 return render(request, 'crops/sowing_confirm.html', {
@@ -135,14 +144,6 @@ def sowing_create(request):
                     'sowing': sowing
                 })
 
-            sowing.status = 'ongoing'
-            sowing.save()
-            fecha_cosecha, costo_estimado = calcular_cosecha_costos(sowing)
-            sowing.estimated_harvest_date = fecha_cosecha
-            sowing.estimated_cost = costo_estimado
-            sowing.save(update_fields=['estimated_harvest_date', 'estimated_cost'])
-
-            messages.success(request, 'Siembra registrada correctamente')
             return redirect('dashboard')
     else:
         form = SowingForm()
@@ -255,7 +256,6 @@ def viability(request):
                         'temp': f"{p.min_temp} - {p.max_temp} °C",
                         'alt': f"{p.min_altitude} - {p.max_altitude} m",
                         'costo_hectarea': p.cost_per_hectare,
-                        'costo_fanegada': p.cost_per_fanegada,
                         'score': s
                     })
     else:
@@ -282,3 +282,23 @@ def reports_view(request):
     }
     
     return render(request, 'crops/reports.html', context)
+
+@login_required
+def production_view(request):
+    farmer = request.user
+    municipio_id = request.GET.get('municipio')
+    producto_id = request.GET.get('producto')
+
+    municipio = Municipality.objects.get(id=municipio_id) if municipio_id else None
+    producto = Product.objects.get(id=producto_id) if producto_id else None
+
+    total_produccion = calcular_produccion_periodo(farmer, meses=6, municipio=municipio, producto=producto)
+
+    context = {
+        'total_produccion': total_produccion,
+        'municipios': Municipality.objects.all(),
+        'productos': Product.objects.all(),
+        'selected_municipio': municipio,
+        'selected_producto': producto
+    }
+    return render(request, 'crops/production.html', context)

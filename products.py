@@ -30,7 +30,6 @@ def cargar_productos_desde_csv(ruta):
                         'max_altitude': int(fila['max_altitude']),
                         'cycle_days': int(fila['cycle_days']),
                         'cost_per_hectare': int(fila['cost_per_hectare']),
-                        'cost_per_fanegada': int(fila['cost_per_fanegada']),
                         'category': categoria
                     }
                 )

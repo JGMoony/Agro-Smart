@@ -2,6 +2,13 @@
 {% load static %}
 {% block content %}
 <h1 class="dashboard-title">Mis siembras</h1>
+
+{% if produccion_total %}
+<div class="production-summary">
+    Producción estimada en los próximos 6 meses: {{ produccion_total }} hectáreas
+</div>
+{% endif %}
+
 <div class="dashboard-table-container">
 <table class="dashboard-table">
 <thead>
@@ -38,78 +45,3 @@
 </table>
 </div>
 {% endblock %}
-
-<style>
-.dashboard-table-container {
-    width: 100%;
-    max-width: 900px;
-    margin: 32px auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(34, 139, 34, 0.12);
-    padding: 24px;
-    overflow-x: auto;
-}
-
-.dashboard-title {
-    text-align: center;
-    font-size: 2.2rem;
-    color: #388e3c;
-    margin-bottom: 18px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.dashboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 1rem;
-    background: #f9fbe7;
-}
-
-.dashboard-table th, .dashboard-table td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #a5d6a7;
-    text-align: left;
-}
-
-.dashboard-table th {
-    background: #388e3c;
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.dashboard-table tr:nth-child(even) {
-    background: #e8f5e9;
-}
-
-.dashboard-btn {
-    padding: 6px 16px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.98rem;
-    border: none;
-    cursor: pointer;
-    margin-right: 6px;
-    transition: background 0.2s, color 0.2s;
-}
-
-.dashboard-btn-edit {
-    background: #8bc34a;
-    color: #fff;
-}
-
-.dashboard-btn-edit:hover {
-    background: #558b2f;
-}
-
-.dashboard-btn-delete {
-    background: #e57373;
-    color: #fff;
-}
-
-.dashboard-btn-delete:hover {
-    background: #b71c1c;
-}
-</style>
