@@ -2,32 +2,56 @@
 {% load static %}
 
 {% block content %}
-<h1>Registrar/Editar siembra</h1>
+<h1 class="text-center text-success fw-bold mb-4">
+        🌱 Registrar / Editar Siembra
+    </h1>
+<div class="container my-5 mx-auto" style="max-width: 400px;">
+    
+    <!-- Título -->
+    
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Guardar</button>
-</form>
-
-{% if clima %}
-  {% if clima.error %}
-    <div style="color: red; margin-top: 20px;">
-      ⚠️ Error al consultar clima: {{ clima.error }}
+    <!-- Formulario en tarjeta -->
+    <div class="d-flex justify-content-center">
+        <div class="card shadow-lg border-0 p-4" style="max-width: 600px; width: 100%; border-radius: 18px;">
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="d-grid mt-3">
+                        <button type="submit" class="btn btn-success fw-bold">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
-  {% else %}
-    <div style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
-      <h3>Clima actual en {{ form.cleaned_data.municipality }}:</h3>
-      <ul>
-        <li><strong>Temperatura:</strong> {{ clima.temperatura }} °C</li>
-        <li><strong>Condición:</strong> {{ clima.descripcion }}</li>
-        <li><strong>Humedad:</strong> {{ clima.humedad }}%</li>
-        <li><strong>Viento:</strong> {{ clima.viento }} m/s</li>
-      </ul>
-    </div>
-  {% endif %}
-{% endif %}
 
+    <!-- Clima -->
+    {% if clima %}
+        {% if clima.error %}
+            <div class="alert alert-danger text-center mt-4">
+                ⚠️ Error al consultar clima: {{ clima.error }}
+            </div>
+        {% else %}
+            <div class="card shadow-sm border-0 mt-5" style="border-radius: 16px;">
+                <div class="card-body text-center">
+                    <h3 class="text-success mb-3">
+                        ☀️ Clima actual en <span class="fw-bold">{{ form.cleaned_data.municipality }}</span>
+                    </h3>
+                    <ul class="list-unstyled fs-5">
+                        <li><strong>🌡️ Temperatura:</strong> {{ clima.temperatura }} °C</li>
+                        <li><strong>🌤️ Condición:</strong> {{ clima.descripcion }}</li>
+                        <li><strong>💧 Humedad:</strong> {{ clima.humedad }}%</li>
+                        <li><strong>💨 Viento:</strong> {{ clima.viento }} m/s</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- Script ubicación -->
 <script>
   navigator.geolocation.getCurrentPosition(function(position) {
     const lat = position.coords.latitude;

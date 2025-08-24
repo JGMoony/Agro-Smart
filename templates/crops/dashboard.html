@@ -1,115 +1,79 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block content %}
-<h1 class="dashboard-title">Mis siembras</h1>
-<div class="dashboard-table-container">
-<table class="dashboard-table">
-<thead>
-<tr>
-    <th>Producto</th>
-    <th>Categoría</th>
-    <th>Cantidad</th>
-    <th>Fecha siembra</th>
-    <th>Municipio</th>
-    <th>Estado</th>
-    <th>Acciones</th>
-</tr>
-</thead>
-<tbody>
-{% for s in sowings %}
-    <tr>
-    <td>{{ s.product.name }}</td>
-    <td>{{ s.product.category.name }}</td>
-    <td>{{ s.quantity }} {{ s.get_unit_display }}</td>
-    <td>{{ s.sowing_date }}</td>
-    <td>{{ s.municipality.name }}</td>
-    <td>{{ s.get_status_display }}</td>
-    <td>
-        <a href="{% url 'sowing_edit' s.id %}" class="dashboard-btn dashboard-btn-edit">Editar</a>
-        <form method="post" action="{% url 'sowing_delete' s.id %}" style="display:inline;">
-        {% csrf_token %}<button type="submit" class="dashboard-btn dashboard-btn-delete">Eliminar</button>
-        </form>
-    </td>
-    </tr>
-{% empty %}
-    <tr><td colspan="7">Sin siembras aún.</td></tr>
-{% endfor %}
-</tbody>
-</table>
+<h1 class="text-center fw-bold mb-4" 
+    style="max-width: 500px; margin: 0 auto; color:#2e7d32; text-shadow: 1px 1px 2px #c8e6c9;">
+    🌱 Mis siembras 🌾
+</h1>
+
+<!-- Fondo agropecuario -->
+<div class="container-fluid my-5" 
+     style="background: linear-gradient(to bottom, #f1f8e9, #fffde7); padding: 40px; border-radius: 20px;">
+
+    {% if sowings %}
+    <!-- Carrusel centrado -->
+    <div class="d-flex justify-content-center">
+        <div id="sowingCarousel" class="carousel slide w-100"
+             data-bs-ride="carousel" style="max-width: 950px;">
+
+            <div class="carousel-inner">
+
+                {% for s in sowings %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    
+                    <!-- Tarjeta agropecuaria -->
+                    <div class="card shadow-lg border-0 mx-auto"
+                         style="border-radius: 22px; background: #ffffff; width: 100%; 
+                                min-height: 480px; max-width: 1000px; border: 2px solid #c8e6c9;">
+
+                        <div class="card-body text-center p-5">
+                            <h3 class="card-title fw-bold" 
+                                style="color:#388e3c; border-bottom: 2px solid #a5d6a7; padding-bottom: 8px;">
+                                🌿 {{ s.product.name }}
+                            </h3>
+                            <p><b>📌 Categoría:</b> {{ s.product.category.name }}</p>
+                            <p><b>🌾 Cantidad:</b> {{ s.quantity }} {{ s.get_unit_display }}</p>
+                            <p><b>📅 Fecha siembra:</b> {{ s.sowing_date }}</p>
+                            <p><b>🏞 Municipio:</b> {{ s.municipality.name }}</p>
+                            <p><b>📍 Estado:</b> {{ s.get_status_display }}</p>
+
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <a href="{% url 'sowing_edit' s.id %}" 
+                                   class="btn btn-success btn-lg shadow-sm px-4"
+                                   style="background-color:#43a047; border:none; border-radius:12px;">
+                                   ✏️ Editar
+                                </a>
+                                <form method="post" action="{% url 'sowing_delete' s.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" 
+                                            class="btn btn-danger btn-lg shadow-sm px-4"
+                                            style="background-color:#e53935; border:none; border-radius:12px;">
+                                        🗑 Eliminar
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- Flechas tipo semilla -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#sowingCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon rounded-circle p-3"
+                      style="background-color:#8bc34a;"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#sowingCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon rounded-circle p-3"
+                      style="background-color:#8bc34a;"></span>
+            </button>
+        </div>
+    </div>
+
+    {% else %}
+    <p class="text-center text-muted mt-5">🌾 Aún no tienes siembras registradas.</p>
+    {% endif %}
 </div>
 {% endblock %}
-
-<style>
-.dashboard-table-container {
-    width: 100%;
-    max-width: 900px;
-    margin: 32px auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 24px rgba(34, 139, 34, 0.12);
-    padding: 24px;
-    overflow-x: auto;
-}
-
-.dashboard-title {
-    text-align: center;
-    font-size: 2.2rem;
-    color: #388e3c;
-    margin-bottom: 18px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.dashboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 1rem;
-    background: #f9fbe7;
-}
-
-.dashboard-table th, .dashboard-table td {
-    padding: 12px 10px;
-    border-bottom: 1px solid #a5d6a7;
-    text-align: left;
-}
-
-.dashboard-table th {
-    background: #388e3c;
-    color: #fff;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.dashboard-table tr:nth-child(even) {
-    background: #e8f5e9;
-}
-
-.dashboard-btn {
-    padding: 6px 16px;
-    border-radius: 6px;
-    font-weight: 600;
-    font-size: 0.98rem;
-    border: none;
-    cursor: pointer;
-    margin-right: 6px;
-    transition: background 0.2s, color 0.2s;
-}
-
-.dashboard-btn-edit {
-    background: #8bc34a;
-    color: #fff;
-}
-
-.dashboard-btn-edit:hover {
-    background: #558b2f;
-}
-
-.dashboard-btn-delete {
-    background: #e57373;
-    color: #fff;
-}
-
-.dashboard-btn-delete:hover {
-    background: #b71c1c;
-}
-</style>
