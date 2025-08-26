@@ -219,7 +219,10 @@ def admin_dashboard(request):
 @login_required
 def viability(request):
     result = None
+    municipality = None
     alternatives = []
+    sowing_date = None
+    clima = {}  
 
     if request.method == 'POST':
         form = ViabilityForm(request.POST)
@@ -251,6 +254,7 @@ def viability(request):
             for p, s in scored[:3]:
                 if s > 0:
                     alternatives.append({
+                        'id':p.id,
                         'cultivo': p.name,
                         'cycle': p.cycle_days,
                         'temp': f"{p.min_temp} - {p.max_temp} °C",
@@ -262,10 +266,47 @@ def viability(request):
         form = ViabilityForm()
     return render(request, 'crops/viability.html', {
         'form': form,
-        'alternatives': alternatives
+        'alternatives': alternatives,
+        'municipality': municipality,
+        'sowing_date': sowing_date,
+        'clima':clima
     })
     
 @login_required
+def seleccionar_cultivo(request):
+    if request.method == "POST":
+        cultivo_id = request.POST.get("cultivo_id")
+        cantidad = request.POST.get("quantity", "1")
+        sowing_date = request.POST.get("sowing_date")
+        municipality_id = request.POST.get("municipality_id")
+
+        # Validaciones
+        if not cultivo_id or not municipality_id or not sowing_date:
+            return redirect("crops:viability")
+
+        try:
+            cantidad = float(cantidad)
+        except ValueError:
+            cantidad = 1 
+
+        cultivo = get_object_or_404(Product, id=cultivo_id)
+        municipio = get_object_or_404(Municipality, id=municipality_id)
+
+        Sowing.objects.create(
+            farmer=request.user,
+            product=cultivo,
+            quantity=cantidad,
+            unit="hectarea",
+            sowing_date=sowing_date,
+            municipality=municipio,
+            status="ongoing"
+        )
+
+        return redirect("dashboard")
+
+    return redirect("crops:viability")
+
+
 def reports_view(request):
     
     sowings = Sowing.objects.filter(farmer=request.user)

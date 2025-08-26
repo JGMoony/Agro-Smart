@@ -30,9 +30,7 @@
         <div class="navbar-links">
             {% if user.is_authenticated %}
                 {% if user.role == 'farmer' %}
-                    <a class="navbar-link" href="{% url 'sowing_create' %}">Nueva siembra</a>
                     <a class="navbar-link" href="{% url 'viability' %}">Viabilidad</a>
-                    <a class="navbar-link" href="{% url 'weather' %}">El clima</a>
                     <a class="navbar-link" href="{% url 'my_sowings' %}">Mis siembras</a>
                 {% elif user.role == 'admin' %}
                     <a class="navbar-link" href="{% url 'admin_dashboard' %}">Panel Admin</a>
