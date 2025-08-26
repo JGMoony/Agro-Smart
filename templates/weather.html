@@ -1,26 +1,32 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'css/register.css' %}">
+{% endblock %}
+
 {% block content %}
 <h1>Consulta de clima</h1>
 
 <form method="post">
-{% csrf_token %}
-<label for="municipality">Municipio:</label>
-<select name="municipality">
-{% for m in municipalities %}
-    <option value="{{ m.id }}">{{ m.name }}</option>
-{% endfor %}
-</select>
-<button type="submit">Consultar</button>
+    {% csrf_token %}
+    <label for="municipality">Municipio:</label>
+    <select name="municipality">
+        {% for m in municipalities %}
+            <option value="{{ m.id }}">{{ m.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Consultar</button>
 </form>
 
 {% if temperature %}
 <hr>
 <h2>Clima en {{ municipality }}</h2>
 <ul>
-<li>🌡️ Temperatura: {{ temperature }} °C</li>
-<li>💧 Humedad: {{ humidity }} %</li>
-<li>🌧️ Lluvia: {{ rainfall }} mm</li>
-<li>🌤️ Condición: {{ description }}</li>
+    <li>🌡️ Temperatura: {{ temperature }} °C</li>
+    <li>💧 Humedad: {{ humidity }} %</li>
+    <li>🌧️ Lluvia: {{ rainfall }} mm</li>
+    <li>🌤️ Condición: {{ description }}</li>
 </ul>
 <form method="get" action="{% url 'viability' %}">
     <input type="hidden" name="municipality" value="{{ municipality.id }}">

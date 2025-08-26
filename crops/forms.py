@@ -2,18 +2,12 @@ from django import forms
 from .models import Sowing, Product, Municipality, Prices
 
 class SowingForm(forms.ModelForm):
-    UNIDADES = [
-        ('ha', 'Hectáreas'),
-        ('A', 'Fanegadas')
-    ]
-
     class Meta:
         model = Sowing
-        fields = ['product', 'quantity', 'unit', 'sowing_date', 'municipality']
+        fields = ['product', 'quantity', 'sowing_date', 'municipality']
         labels = {
             'product': 'Producto',
             'quantity': 'Cantidad',
-            'unit': 'Unidad',
             'sowing_date': 'Fecha de siembra',
             'municipality': 'Municipio'
         }
@@ -21,6 +15,13 @@ class SowingForm(forms.ModelForm):
             'sowing_date': forms.DateInput(attrs={'type': 'date'}),
         }
         
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.unit = 'hectarea'
+        if commit:
+            instance.save()
+        return instance
+            
 class PriceForm(forms.ModelForm):
     UNIDADES = [
         ('k', 'kilo'),

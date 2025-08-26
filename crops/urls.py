@@ -30,5 +30,9 @@ urlpatterns = [
 
     # Viabilidad y reportes
     path('viability/', viability, name='viability'),
+    path("seleccionar-cultivo/", views.seleccionar_cultivo, name="seleccionar_cultivo"),
+    path('', views.home, name='home'),
+    path('mis-siembras/', dashboard, name='my_sowings'),
     path('reports/', views.reports_view, name='reports'),
+    path('production', production_view, name='production')
 ]

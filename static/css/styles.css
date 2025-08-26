@@ -1,9 +1,9 @@
-main > * {
+/* main > * {
     max-width: 600px;
     width: 100%;
     display: flex;
     
-}
+} */
 .body {
     margin: 0;
     padding: 0;
@@ -317,7 +317,6 @@ main > * {
         .register-title {
             font-size: 1.4rem;
         }
-       
     }
 
     
