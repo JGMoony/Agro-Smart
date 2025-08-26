@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Dashboard de siembras
     path('mis-siembras/', dashboard, name='my_sowings'),
+    path('mis-siembras/', dashboard, name='dashboard'),
 
     # Gestión de siembras
     path('sowings/new/', sowing_create, name='sowing_create'),
@@ -32,7 +33,6 @@ urlpatterns = [
     path('viability/', viability, name='viability'),
     path("seleccionar-cultivo/", views.seleccionar_cultivo, name="seleccionar_cultivo"),
     path('', views.home, name='home'),
-    path('mis-siembras/', dashboard, name='my_sowings'),
     path('reports/', views.reports_view, name='reports'),
     path('production', production_view, name='production')
 ]
