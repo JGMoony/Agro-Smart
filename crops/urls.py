@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     dashboard, sowing_create, sowing_edit, sowing_delete,
     admin_dashboard, viability, price_create, price_delete,
-    price_edit, price_predit, price_dashboard
+    price_edit, price_predit, price_dashboard,production_view
 )
 from . import views
 

@@ -302,7 +302,7 @@ def seleccionar_cultivo(request):
             status="ongoing"
         )
 
-        return redirect("dashboard")
+        return redirect("my_sowings")
 
     return redirect("crops:viability")
 
