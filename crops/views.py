@@ -298,3 +298,7 @@ def reports_view(request):
     }
     
     return render(request, 'crops/reports.html', context)
+
+
+def home(request):
+    return render(request, "home.html")
