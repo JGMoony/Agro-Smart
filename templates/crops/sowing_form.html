@@ -2,36 +2,94 @@
 {% load static %}
 
 {% block content %}
-<h1>Registrar/Editar siembra</h1>
+<h1 style="max-width: 600px; margin: 0 auto; padding-top: 50px; color:#2e7d32; text-shadow: 1px 1px 2px #c8e6c9;">
+    <span style="display: inline-block;">
+        🌱 Registrar / Editar Siembra 🌾
+    </span>
+</h1>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Guardar</button>
-</form>
+<!-- Contenedor general solo con degradado -->
+<div class="container my-5 mx-auto p-4 d-flex flex-column align-items-center content-container" 
+     style="max-width: 700px; border-radius: 18px; position: relative; overflow: hidden;
+            background: linear-gradient(to top, #fffde7 50%, transparent 50%);">
 
-{% if clima %}
-  {% if clima.error %}
-    <div style="color: red; margin-top: 20px;">
-      ⚠️ Error al consultar clima: {{ clima.error }}
+    <!-- Formulario en tarjeta -->
+    <div class="card shadow-lg border-0 editable-card" 
+         style="border-radius: 22px; border: 2px solid #43a047; display: inline-block; max-width: 100%;">
+        <div class="card-body p-5">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <div class="d-grid mt-3">
+                    <button type="submit" 
+                            class="btn btn-success fw-bold shadow-sm py-2"
+                            style="background-color:#43a047; border:none; border-radius:12px;">
+                        💾 Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-  {% else %}
-    <div style="margin-top: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 8px; background-color: #f9f9f9;">
-      <h3>Clima actual en {{ form.cleaned_data.municipality }}:</h3>
-      <ul>
-        <li><strong>Temperatura:</strong> {{ clima.temperatura }} °C</li>
-        <li><strong>Condición:</strong> {{ clima.descripcion }}</li>
-        <li><strong>Humedad:</strong> {{ clima.humedad }}%</li>
-        <li><strong>Viento:</strong> {{ clima.viento }} m/s</li>
-      </ul>
-    </div>
-  {% endif %}
-{% endif %}
 
+    <!-- Clima -->
+    {% if clima %}
+        {% if clima.error %}
+            <div class="alert alert-danger text-center mt-4 shadow-sm" style="border-radius: 12px;">
+                ⚠️ Error al consultar clima: {{ clima.error }}
+            </div>
+        {% else %}
+            <div class="card shadow-lg border-0 mt-5 editable-card" 
+                 style="border-radius: 18px; background:#ffffff; border: 2px solid #43a047;">
+                <div class="card-body text-center p-4">
+                    <h3 class="fw-bold mb-3 editable-title" style="color:#388e3c;">
+                        ☀️ Clima actual en <span class="fw-bold text-dark">{{ form.cleaned_data.municipality }}</span>
+                    </h3>
+                    <ul class="list-unstyled fs-5 editable-text">
+                        <li><strong>🌡️ Temperatura:</strong> {{ clima.temperatura }} °C</li>
+                        <li><strong>🌤️ Condición:</strong> {{ clima.descripcion }}</li>
+                        <li><strong>💧 Humedad:</strong> {{ clima.humedad }}%</li>
+                        <li><strong>💨 Viento:</strong> {{ clima.viento }} m/s</li>
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- Script ubicación -->
 <script>
   navigator.geolocation.getCurrentPosition(function(position) {
     const lat = position.coords.latitude;
     const lon = position.coords.longitude;
   });
 </script>
+
+<!-- Estilos personalizados -->
+<style>
+/* Hover verde claro y efecto flotante en tarjetas */
+.editable-card:hover {
+    background-color: #dcedc8; /* verde claro */
+    transform: translateY(-5px);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Transición suave */
+.editable-card {
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Tipografía más llamativa y más gruesa */
+.editable-title {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 1px;
+    font-weight: 800; /* más gruesa */
+}
+
+.editable-text li {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600; /* más gruesa */
+}
+</style>
 {% endblock %}

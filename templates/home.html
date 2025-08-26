@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container d-flex flex-column justify-content-center align-items-center" style="height:100vh;">
+
+    <!-- Caja central con efecto vidrio -->
+    <div class="glass-box text-center p-4 rounded shadow-lg">
+        <h1 class="fw-bold text-success">🌱 Bienvenido a Agro Smart</h1>
+        <p class="lead">
+            Aquí podrás gestionar tus siembras, consultar la viabilidad de cultivos, revisar el clima y mucho más.
+        </p>
+
+    
+    </div>
+</div>
+
+<style>
+ body {
+    background-image: url("{% static 'css/img/campo.jpg' %}");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+
+
+    /* Caja con efecto vidrio */
+    .glass-box {
+        background: rgba(255, 255, 255, 0.8); /* Blanco semitransparente */
+        backdrop-filter: blur(8px); /* Efecto vidrio */
+        -webkit-backdrop-filter: blur(8px); /* Safari */
+        max-width: 700px;
+    }
+</style>
+{% endblock %}
